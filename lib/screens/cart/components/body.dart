@@ -11,6 +11,24 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
+
+  void onRemove(Cart cart) {
+    setState(() {
+      if (cart.numOfItem > 1) {
+        cart.numOfItem--;
+      } else {
+        // Remove the item from the list if the quantity is 1
+        demoCarts.remove(cart);
+      }
+    });
+  }
+
+  void onAdd(Cart cart) {
+    setState(() {
+      cart.numOfItem++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -41,7 +59,11 @@ class _BodyState extends State<Body> {
                 ],
               ),
             ),
-            child: CartCard(cart: demoCarts[index]),
+            child: CartCard(
+              cart: demoCarts[index],
+              onRemove: () => onRemove(demoCarts[index]),
+              onAdd: () => onAdd(demoCarts[index]),
+            ),
           ),
         ),
       ),
