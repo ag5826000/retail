@@ -18,21 +18,6 @@ class CustomBottomNavBar extends StatelessWidget {
   final MenuState selectedMenu;
 
 
-
-  Future<void> scanBarcode(BuildContext context) async {
-    var res = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SimpleBarcodeScannerPage(),
-        ));
-        final player = AudioPlayer();
-        await player.play(AssetSource('sound/beep.mp3'));
-        if (res is String) {
-          var result = res;
-          print(res);
-        }
-  }
-
   @override
   Widget build(BuildContext context) {
     final Color inActiveIconColor = Color(0xFFB6B6B6);
@@ -72,7 +57,7 @@ class CustomBottomNavBar extends StatelessWidget {
                   color: MenuState.favourite == selectedMenu
                       ? kPrimaryColor
                       : inActiveIconColor,),
-                onPressed: () => scanBarcode(context),
+                onPressed: () {},
               ),
               IconButton(
                 icon: SvgPicture.asset("assets/icons/Chat bubble Icon.svg",

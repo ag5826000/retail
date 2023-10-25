@@ -6,6 +6,8 @@ import '../../../size_config.dart';
 import 'cart_card.dart';
 
 class Body extends StatefulWidget {
+  final VoidCallback updateTotal;
+  Body({required this.updateTotal});
   @override
   _BodyState createState() => _BodyState();
 }
@@ -20,12 +22,14 @@ class _BodyState extends State<Body> {
         // Remove the item from the list if the quantity is 1
         demoCarts.remove(cart);
       }
+      widget.updateTotal();
     });
   }
 
   void onAdd(Cart cart) {
     setState(() {
       cart.numOfItem++;
+      widget.updateTotal();
     });
   }
 
