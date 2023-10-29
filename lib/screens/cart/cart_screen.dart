@@ -1,7 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shop_app/models/Cart.dart';
 import 'package:shop_app/screens/cart/components/scanner.dart';
+import 'package:shop_app/screens/login_success/login_success_screen.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import '../home/components/icon_btn_with_counter.dart';
@@ -26,11 +29,53 @@ class _CartScreenState extends State<CartScreen> {
     updateTotal();
   }
   double cartTotal=0;
+
+  void onPressCheckout() async {
+    // Ensure the user is signed in and has a UID
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null||cartTotal<=0) {
+      // Handle the case where the user is not signed in
+      // You may want to display an error message or navigate to a login screen
+      return;
+    }
+
+    // Initialize Firestore
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    try {
+      // Create a Firestore collection reference with the user's UID as a prefix
+      // print('transactions/${user.uid}');
+      final CollectionReference cartCollection =
+      firestore.collection('transactions_${user.uid}');
+      final List<Map<String, dynamic>> cartItems = demoCartsMap.values.map((cart) => cart.toMap()).toList();
+      // Create a new document with an auto-generated ID and a timestamp
+      final DocumentReference cartDocument = await cartCollection.add({
+        'items': cartItems, // Assuming demoCartsMap is a Map of cart items
+        'total': cartTotal, // Implement a function to calculate the total
+        'timestamp': FieldValue.serverTimestamp(), // Add the timestamp field
+      });
+
+      // Cart data has been successfully saved to Firestore, clear the demo cart
+      setState(() {
+        demoCartsMap.clear();
+        updateTotal();
+      });
+
+      // Navigate to the next screen (LoginSuccessScreen) or perform any other actions
+      Navigator.pushReplacementNamed(context, LoginSuccessScreen.routeName);
+    } catch (error) {
+      // Cart data could not be saved to Firestore, handle the error as needed
+      print('Error saving cart to Firestore: $error');
+      // You can display an error message or retry, depending on your use case
+    }
+  }
   void updateTotal() {
     // Calculate the total here
     double total = 0.0;
-    for (final cart in demoCarts) {
-      total += cart.product.price * cart.numOfItem;
+
+
+    for (final cart in demoCartsMap.values) {
+      total += cart.item.price * cart.numOfItem;
     }
 
     // Update the cartTotal and rebuild the widget
@@ -80,7 +125,7 @@ class _CartScreenState extends State<CartScreen> {
     return Scaffold(
       appBar: buildAppBar(context),
       body: Body(updateTotal: updateTotal),
-      bottomNavigationBar: CheckoutCard(cartTotal: cartTotal),
+      bottomNavigationBar: CheckoutCard(cartTotal: cartTotal,onPressCheckout: onPressCheckout,),
     );
   }
 
@@ -93,7 +138,7 @@ class _CartScreenState extends State<CartScreen> {
             style: TextStyle(color: Colors.black),
           ),
           Text(
-            "${demoCarts.length} items",
+            "${demoCartsMap.length} items",
             style: Theme.of(context).textTheme.caption,
           ),
         ],

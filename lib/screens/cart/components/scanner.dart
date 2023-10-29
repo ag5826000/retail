@@ -1,12 +1,13 @@
+import 'dart:convert';
+
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shop_app/screens/cart/components/scanner_error_widget.dart';
 
-import 'package:flutter/foundation.dart';
-
 import '../../../models/Cart.dart';
+import 'barcodePopUp.dart';
 
 class BarcodeListScannerWithController extends StatefulWidget {
   const BarcodeListScannerWithController({super.key});
@@ -72,21 +73,64 @@ class _BarcodeListScannerWithControllerState
                 onDetect: (barcode) {
                   setState(() async {
                     final player = AudioPlayer();
-                    print("Yo yo");
                     print(barcode.barcodes[0].displayValue);
                     String barCode=barcode.barcodes[0].displayValue.toString();
-                    if (barCode == "8901088080262") {
-                      setState(() {
-                        demoCarts[0].numOfItem++;
+                    var db = FirebaseFirestore.instance;
+                    CollectionReference productsCollection =db.collection('products');
+                    QuerySnapshot querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
+
+
+                    if (querySnapshot.docs.isNotEmpty) {
+                      Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
+                      setState(() async {
+                        if (demoCartsMap.containsKey(barCode)) {
+                          demoCartsMap[barCode]!.numOfItem++;
+                          await player.play(AssetSource('sound/beep.mp3'));
+                        } else {
+                          final newCartItem = CartItem(
+                            title: jsonData["name"], // Replace with the actual field name
+                            price: int.parse(jsonData["mrp"]), // Replace with the actual field name
+                            barcode: barCode,
+                          );
+
+                          demoCartsMap[barCode] = Cart(item: newCartItem, numOfItem: 1);
+
+                          await player.play(AssetSource('sound/beep.mp3'));
+                        }
                       });
                     }
                     else {
-                      setState(() {
-                        demoCarts[1].numOfItem++;
+                      setState(() async {
+                        await player.play(AssetSource('sound/beep.mp3'));
+                        _startOrStop();
+                        await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return BarcodePopupForm(scannedBarcode: barCode);
+                          },
+                        );
+                        querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
+                        if (querySnapshot.docs.isNotEmpty) {
+                          Map<String, dynamic> jsonData = querySnapshot.docs[0]
+                              .data() as Map<String, dynamic>;
+                          final newCartItem = CartItem(
+                            title: jsonData["name"],
+                            // Replace with the actual field name
+                            price: int.parse(jsonData["mrp"]),
+                            // Replace with the actual field name
+                            barcode: barCode,
+                          );
+
+                          demoCartsMap[barCode] =
+                              Cart(item: newCartItem, numOfItem: 1);
+                        };
+                        _startOrStop();
                       });
                     }
-                    await player.play(AssetSource('sound/beep.mp3'));
+
+
                     this.barcode = barcode;
+
                   });
                 },
               ),

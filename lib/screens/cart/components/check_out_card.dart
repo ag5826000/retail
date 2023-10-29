@@ -8,9 +8,11 @@ import '../../../size_config.dart';
 
 class CheckoutCard extends StatefulWidget {
   final double cartTotal;
+  final VoidCallback onPressCheckout;
   const CheckoutCard({
     Key? key,
     required this.cartTotal,
+    required this.onPressCheckout,
   }) : super(key: key);
 
   @override
@@ -76,7 +78,7 @@ class _CheckoutCardState extends State<CheckoutCard> {
                     text: "Total:\n",
                     children: [
                       TextSpan(
-                        text: "\$${widget.cartTotal.toStringAsFixed(2)}",
+                        text: "₹${widget.cartTotal.toStringAsFixed(2)}",
                         style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ],
@@ -86,7 +88,7 @@ class _CheckoutCardState extends State<CheckoutCard> {
                   width: getProportionateScreenWidth(190),
                   child: DefaultButton(
                     text: "Checkout",
-                    // press: => (),
+                    press: widget.onPressCheckout,
                   ),
                 ),
               ],

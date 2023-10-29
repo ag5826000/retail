@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shop_app/components/custom_surfix_icon.dart';
 import 'package:shop_app/components/default_button.dart';
@@ -5,8 +6,9 @@ import 'package:shop_app/components/form_error.dart';
 import 'package:shop_app/screens/complete_profile/complete_profile_screen.dart';
 
 import '../../../constants.dart';
+import '../../../helper/firebase_auth_service.dart';
 import '../../../size_config.dart';
-
+import '../../otp/otp_screen.dart';
 
 class SignUpForm extends StatefulWidget {
   @override
@@ -15,24 +17,86 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
-  String? email;
-  String? password;
-  String? conform_password;
-  bool remember = false;
+  String? phoneNumber;
   final List<String?> errors = [];
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final String countryCode = "+91";
+  final FirebaseAuthService _authService = FirebaseAuthService();
+
+  bool isGeneratingOTP = false;
+
+
+  Future<void> _generateOTP() async {
+    final PhoneVerificationCompleted verificationCompleted =
+        (PhoneAuthCredential credential) {
+      // Handle the sign-in using the credential
+      // You can navigate to the next screen here if needed
+          setState(() {
+            isGeneratingOTP = false;
+          });
+    };
+
+    final PhoneVerificationFailed verificationFailed =
+        (FirebaseAuthException e) {
+      if (e.code == 'invalid-phone-number') {
+        addError(error: "Invalid Phone Number");
+      } else if (e.code == 'too-many-requests') {
+        addError(error: "Too many verification requests.");
+      } else {
+        addError(error: "Sorry, an error occurred.");
+      }
+      setState(() {
+        isGeneratingOTP = false;
+      });
+      // Handle other error cases if needed
+    };
+
+    final PhoneCodeSent codeSent =
+        (String verificationId, [int? forceResendingToken]) {
+          setState(() {
+            errors.clear();
+            isGeneratingOTP = false;
+          });
+          Navigator.pushNamed(context, OtpScreen.routeName,   arguments: {'phoneNumber': phoneNumber, 'verificationId': verificationId},
+          );
+      // Navigator.pushNamed(context, '/otp_screen', arguments: verificationId);
+    };
+
+    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
+        (String verificationId) {
+      // Auto-retrieval of the SMS code timed out (e.g., user didn't receive it)
+    };
+
+    setState(() {
+      isGeneratingOTP = true;
+    });
+
+    await _authService.sendOTP(
+      countryCode + phoneNumber!,
+      verificationCompleted: verificationCompleted,
+      verificationFailed: verificationFailed,
+      codeSent: codeSent,
+      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+    );
+    // Set the isGeneratingOTP flag to false after OTP generation
+
+
+  }
 
   void addError({String? error}) {
-    if (!errors.contains(error))
+    if (!errors.contains(error)) {
       setState(() {
         errors.add(error);
       });
+    }
   }
 
   void removeError({String? error}) {
-    if (errors.contains(error))
+    if (errors.contains(error)) {
       setState(() {
         errors.remove(error);
       });
+    }
   }
 
   @override
@@ -41,123 +105,51 @@ class _SignUpFormState extends State<SignUpForm> {
       key: _formKey,
       child: Column(
         children: [
-          buildEmailFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
-          buildPasswordFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
-          buildConformPassFormField(),
+          buildPhoneNumberFormField(),
           FormError(errors: errors),
           SizedBox(height: getProportionateScreenHeight(40)),
-          DefaultButton(
-            text: "Continue",
-            press: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                // if all are valid then go to success screen
-                Navigator.pushNamed(context, CompleteProfileScreen.routeName);
-              }
-            },
-          ),
+          // Replace the "Continue" button with buildGenerateOTPButton
+          if (isGeneratingOTP)
+            CircularProgressIndicator()
+          else
+            DefaultButton(
+              text: "Continue",
+              press: () {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  _generateOTP();
+                }
+              },
+            ),
         ],
       ),
     );
   }
 
-  TextFormField buildConformPassFormField() {
+  TextFormField buildPhoneNumberFormField() {
+     // Change this to your desired country code
     return TextFormField(
-      obscureText: true,
-      onSaved: (newValue) => conform_password = newValue,
+      keyboardType: TextInputType.phone,
+      onSaved: (newValue) => phoneNumber = newValue,
       onChanged: (value) {
         if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
-        } else if (value.isNotEmpty && password == conform_password) {
-          removeError(error: kMatchPassError);
+          removeError(error: "Please Enter your Phone Number");
         }
-        conform_password = value;
+        phoneNumber = value;
       },
       validator: (value) {
         if (value!.isEmpty) {
-          addError(error: kPassNullError);
-          return "";
-        } else if ((password != value)) {
-          addError(error: kMatchPassError);
+          addError(error: "Please Enter your Phone Number");
           return "";
         }
         return null;
       },
       decoration: InputDecoration(
-        labelText: "Confirm Password",
-        hintText: "Re-enter your password",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
+        labelText: "Phone Number",
+        hintText: "Enter your phone number",
+        prefixText: countryCode + "  ", // Add the country code as a prefix
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
-      ),
-    );
-  }
-
-  TextFormField buildPasswordFormField() {
-    return TextFormField(
-      obscureText: true,
-      onSaved: (newValue) => password = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
-        } else if (value.length >= 8) {
-          removeError(error: kShortPassError);
-        }
-        password = value;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kPassNullError);
-          return "";
-        } else if (value.length < 8) {
-          addError(error: kShortPassError);
-          return "";
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: "Password",
-        hintText: "Enter your password",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
-      ),
-    );
-  }
-
-  TextFormField buildEmailFormField() {
-    return TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      onSaved: (newValue) => email = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kEmailNullError);
-        } else if (emailValidatorRegExp.hasMatch(value)) {
-          removeError(error: kInvalidEmailError);
-        }
-        return null;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kEmailNullError);
-          return "";
-        } else if (!emailValidatorRegExp.hasMatch(value)) {
-          addError(error: kInvalidEmailError);
-          return "";
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: "Email",
-        hintText: "Enter your email",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
+        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Phone.svg"),
       ),
     );
   }

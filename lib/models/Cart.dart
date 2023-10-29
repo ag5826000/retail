@@ -1,18 +1,34 @@
+
+
 import 'package:flutter/material.dart';
 
 import 'Product.dart';
 
+class CartItem
+{
+  String title;
+  int price;
+  String barcode;
+  CartItem({required this.title, required this.price,required this.barcode});
+}
+
 class Cart {
-  final Product product;
+  final CartItem item;
   int numOfItem;
 
-  Cart({required this.product, required this.numOfItem});
+  Cart({required this.item, required this.numOfItem});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': item.title,
+      'price':item.price,
+      'barcode':item.barcode,
+      'numOfItem': numOfItem,
+    };
+  }
 }
 
 // Demo data for our cart
 
-List<Cart> demoCarts = [
-  Cart(product: demoProducts[0], numOfItem: 3),
-  Cart(product: demoProducts[1], numOfItem: 1),
-  Cart(product: demoProducts[3], numOfItem: 1),
-];
+Map<String, Cart> demoCartsMap = {
+};

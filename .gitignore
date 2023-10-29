@@ -29,6 +29,7 @@
 .pub-cache/
 .pub/
 /build/
+firebase-tools-instant-win.exe
 
 # Web related
 lib/generated_plugin_registrant.dart
