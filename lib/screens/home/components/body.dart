@@ -8,6 +8,11 @@ import 'popular_product.dart';
 import 'special_offers.dart';
 
 class Body extends StatelessWidget {
+  final DateTime? rangeStart;
+  final DateTime? rangeEnd;
+
+  Body({this.rangeStart, this.rangeEnd});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -17,7 +22,7 @@ class Body extends StatelessWidget {
             SizedBox(height: getProportionateScreenHeight(20)),
             HomeHeader(),
             SizedBox(height: getProportionateScreenWidth(10)),
-            DiscountBanner(),
+            DiscountBanner(rangeStart: rangeStart, rangeEnd: rangeEnd),
             Categories(),
             SpecialOffers(),
             SizedBox(height: getProportionateScreenWidth(30)),

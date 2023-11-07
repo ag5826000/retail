@@ -45,6 +45,7 @@ class _SignUpFormState extends State<SignUpForm> {
       } else {
         addError(error: "Sorry, an error occurred.");
       }
+      print(e.code);
       setState(() {
         isGeneratingOTP = false;
       });

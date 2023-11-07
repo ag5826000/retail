@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-
 class BarcodePopupForm extends StatefulWidget {
   final String scannedBarcode;
   BarcodePopupForm({required this.scannedBarcode});
@@ -84,7 +83,8 @@ class _BarcodePopupFormState extends State<BarcodePopupForm> {
               final product = <String, dynamic>{
                 "name": name,
                 "mrp": mrp,
-                "barcode": widget.scannedBarcode
+                "barcode": widget.scannedBarcode,
+                "timestamp": FieldValue.serverTimestamp(),
               };
               var db = FirebaseFirestore.instance;
               db.collection("products").add(product).then((DocumentReference doc) =>

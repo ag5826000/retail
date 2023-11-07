@@ -4,6 +4,7 @@ import 'package:shop_app/screens/cart/components/scanner.dart';
 import 'package:shop_app/screens/complete_profile/complete_profile_screen.dart';
 import 'package:shop_app/screens/details/details_screen.dart';
 import 'package:shop_app/screens/forgot_password/forgot_password_screen.dart';
+import 'package:shop_app/screens/home/components/calender.dart';
 import 'package:shop_app/screens/home/home_screen.dart';
 import 'package:shop_app/screens/login_success/login_success_screen.dart';
 import 'package:shop_app/screens/otp/otp_screen.dart';
@@ -30,4 +31,5 @@ final Map<String, WidgetBuilder> routes = {
   ProfileScreen.routeName: (context) => ProfileScreen(),
   BarcodeListScannerWithController.routeName: (context) => BarcodeListScannerWithController(),
   WrapperScreen.routeName: (context) => WrapperScreen(),
+  Calender.routeName: (context) => Calender(),
 };

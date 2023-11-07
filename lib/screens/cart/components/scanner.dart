@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shop_app/screens/cart/components/scanner_error_widget.dart';
 
@@ -23,6 +24,7 @@ class _BarcodeListScannerWithControllerState
     with SingleTickerProviderStateMixin{
 
   BarcodeCapture? barcode;
+  bool showAnimatedIcon  = false;
 
   final MobileScannerController controller = MobileScannerController(
     torchEnabled: false,
@@ -85,6 +87,14 @@ class _BarcodeListScannerWithControllerState
                       setState(() async {
                         if (demoCartsMap.containsKey(barCode)) {
                           demoCartsMap[barCode]!.numOfItem++;
+                          setState(() {
+                            showAnimatedIcon  = true;
+                          });
+                          Future.delayed(Duration(seconds: 1), () {
+                            setState(() {
+                              showAnimatedIcon = false;
+                            });
+                          });
                           await player.play(AssetSource('sound/beep.mp3'));
                         } else {
                           final newCartItem = CartItem(
@@ -94,7 +104,14 @@ class _BarcodeListScannerWithControllerState
                           );
 
                           demoCartsMap[barCode] = Cart(item: newCartItem, numOfItem: 1);
-
+                          setState(() {
+                            showAnimatedIcon  = true;
+                          });
+                          Future.delayed(Duration(seconds: 1), () {
+                            setState(() {
+                              showAnimatedIcon = false;
+                            });
+                          });
                           await player.play(AssetSource('sound/beep.mp3'));
                         }
                       });
@@ -123,6 +140,14 @@ class _BarcodeListScannerWithControllerState
 
                           demoCartsMap[barCode] =
                               Cart(item: newCartItem, numOfItem: 1);
+                          setState(() {
+                            showAnimatedIcon  = true;
+                          });
+                          Future.delayed(Duration(seconds: 1), () {
+                            setState(() {
+                              showAnimatedIcon = false;
+                            });
+                          });
                         };
                         _startOrStop();
                       });
@@ -133,6 +158,31 @@ class _BarcodeListScannerWithControllerState
 
                   });
                 },
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Visibility(
+                  visible: showAnimatedIcon,
+                  child: AnimatedOpacity(
+                    opacity: showAnimatedIcon ? 1.0 : 0.0,
+                    duration: Duration(seconds: 1),
+                    child: Animate(
+                      effects: [ShakeEffect(duration: 500.ms), ScaleEffect(duration: 300.ms)],
+                      child: Container(
+                        alignment: Alignment.bottomCenter,
+                        height: 100,
+                        color: Colors.black.withOpacity(0.4),
+                        child: Center(
+                          child: Icon(
+                            Icons.check_circle, // You can choose any desired icon
+                            color: Colors.green,
+                            size: 50,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
               Align(
                 alignment: Alignment.bottomCenter,
