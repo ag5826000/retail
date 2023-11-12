@@ -30,7 +30,7 @@ class _CartScreenState extends State<CartScreen> {
   }
   double cartTotal=0;
 
-  void onPressCheckout() async {
+  void onPressCheckout(String paymentMethod) async {
     // Ensure the user is signed in and has a UID
     final User? user = FirebaseAuth.instance.currentUser;
     if (user == null||cartTotal<=0) {
@@ -53,6 +53,7 @@ class _CartScreenState extends State<CartScreen> {
         'items': cartItems, // Assuming demoCartsMap is a Map of cart items
         'total': cartTotal, // Implement a function to calculate the total
         'timestamp': FieldValue.serverTimestamp(), // Add the timestamp field
+        'paymentMethod': paymentMethod,
       });
 
       // Cart data has been successfully saved to Firestore, clear the demo cart

@@ -101,6 +101,7 @@ class _BarcodeListScannerWithControllerState
                             title: jsonData["name"], // Replace with the actual field name
                             price: int.parse(jsonData["mrp"]), // Replace with the actual field name
                             barcode: barCode,
+                            category: jsonData["category"]
                           );
 
                           demoCartsMap[barCode] = Cart(item: newCartItem, numOfItem: 1);
@@ -136,6 +137,7 @@ class _BarcodeListScannerWithControllerState
                             price: int.parse(jsonData["mrp"]),
                             // Replace with the actual field name
                             barcode: barCode,
+                            category: jsonData["category"]
                           );
 
                           demoCartsMap[barCode] =

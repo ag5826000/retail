@@ -6,9 +6,11 @@ import '../../../constants.dart';
 import '../../../models/Cart.dart';
 import '../../../size_config.dart';
 
+typedef CheckoutFunction = void Function(String paymentMethod);
+
 class CheckoutCard extends StatefulWidget {
   final double cartTotal;
-  final VoidCallback onPressCheckout;
+  final CheckoutFunction onPressCheckout;
   const CheckoutCard({
     Key? key,
     required this.cartTotal,
@@ -20,6 +22,80 @@ class CheckoutCard extends StatefulWidget {
 }
 
 class _CheckoutCardState extends State<CheckoutCard> {
+
+  void _showCheckoutOptions() {
+    if (widget.cartTotal <= 0) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('No Items in Cart'),
+            content: Text('Please add items to the cart before checkout.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Select Payment Method'),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.payment),
+                          color: Colors.blue, // Color for the payment icon
+                          onPressed: () {
+                            // Handle checkout with UPI
+                            widget.onPressCheckout("UPI");
+                            Navigator.pop(context); // Close the modal sheet
+                          },
+                        ),
+                        Text('Checkout with UPI',
+                            style: TextStyle(color: Colors.blue)),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.money),
+                          color: Colors.green, // Color for the money icon
+                          onPressed: () {
+                            // Handle checkout with cash
+                            widget.onPressCheckout("Cash");
+                            Navigator.pop(context); // Close the modal sheet
+                          },
+                        ),
+                        Text('Checkout with Cash',
+                            style: TextStyle(color: Colors.green)),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -88,7 +164,7 @@ class _CheckoutCardState extends State<CheckoutCard> {
                   width: getProportionateScreenWidth(190),
                   child: DefaultButton(
                     text: "Checkout",
-                    press: widget.onPressCheckout,
+                    press: _showCheckoutOptions,
                   ),
                 ),
               ],

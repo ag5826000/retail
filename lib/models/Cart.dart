@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import 'Product.dart';
 
@@ -9,7 +10,8 @@ class CartItem
   String title;
   int price;
   String barcode;
-  CartItem({required this.title, required this.price,required this.barcode});
+  String category;
+  CartItem({required this.title, required this.price,required this.barcode,required this.category});
 }
 
 class Cart {
@@ -23,6 +25,7 @@ class Cart {
       'title': item.title,
       'price':item.price,
       'barcode':item.barcode,
+      'category' :item.category,
       'numOfItem': numOfItem,
     };
   }
