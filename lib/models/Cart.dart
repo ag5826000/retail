@@ -7,11 +7,13 @@ import 'Product.dart';
 
 class CartItem
 {
+  String productId;
   String title;
   int price;
   String barcode;
   String category;
-  CartItem({required this.title, required this.price,required this.barcode,required this.category});
+  CartItem({required this.title, required this.price,required this.barcode,required this.category, required this.productId});
+     // CartItem({required this.productId})
 }
 
 class Cart {
@@ -22,10 +24,11 @@ class Cart {
 
   Map<String, dynamic> toMap() {
     return {
-      'title': item.title,
-      'price':item.price,
-      'barcode':item.barcode,
-      'category' :item.category,
+      // 'title': item.title,
+      // 'price':item.price,
+      // 'barcode':item.barcode,
+      // 'category' :item.category,
+      'productId': item.productId,
       'numOfItem': numOfItem,
     };
   }

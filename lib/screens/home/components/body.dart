@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +36,7 @@ class _BodyState extends State<Body> {
   void initState() {
     super.initState();
     _getTransactionsTotal(widget.rangeStart, widget.rangeEnd);
+    print("_getTransactionsTotal called");
   }
 
   Future<void> _getTransactionsTotal(DateTime? start, DateTime? end) async {
@@ -66,20 +69,35 @@ class _BodyState extends State<Body> {
         double transactionTotal = jsonData['total'];
 
         List<dynamic> items = jsonData['items'];
-
+        print(items.toString());
         for (var item in items) {
-          String productName = item['title'];
+
+          String productId = item['productId'];
+          print('productId : $productId');
+          // String productName = item['title'];
           int currentItems=item['numOfItem'] as int;
-          int productPrice = (item['price'] as int) * (currentItems);
-          calculatedTotalItems += currentItems;
-          if (productList.containsKey(productName)) {
-            productList[productName] = ProductData(
-              productName,
-              productList[productName]!.revenue + productPrice,
-              productList[productName]!.count + currentItems,
-            );
-          } else {
-            productList[productName] = ProductData(productName, productPrice, currentItems);
+
+          DocumentSnapshot productDoc =
+          await firestore.collection('products').doc(productId).get();
+          if (productDoc.exists) {
+            Map<String, dynamic> productData = productDoc.data() as Map<String,dynamic>;
+
+            String productName = productData['name'];
+            print('productName : $productName');
+            int productPrice = (int.parse(productData['mrp'])) * currentItems;
+            print('productPrice : $productPrice');
+            // int productPrice = (item['price'] as int) * (currentItems);
+            calculatedTotalItems += currentItems;
+            if (productList.containsKey(productName)) {
+              productList[productName] = ProductData(
+                productName,
+                productList[productName]!.revenue + productPrice,
+                productList[productName]!.count + currentItems,
+              );
+            } else {
+              productList[productName] =
+                  ProductData(productName, productPrice, currentItems);
+            }
           }
           // productRevenue.update(productName, (value) => value + productPrice, ifAbsent: () => productPrice);
           // productCount.update(productName, (value) => value + calculatedTotalItems, ifAbsent: () => calculatedTotalItems);
@@ -89,12 +107,16 @@ class _BodyState extends State<Body> {
       }
       totalTransactions=querySnapshot.size;
       double calculatedAverage = total / querySnapshot.size;
+      String formattedAverage = calculatedAverage.toStringAsFixed(2);
+
       products=productList.values.toList();
       //print(productList.values.toList().length);
       setState(() {
         totalValue = total;
         totalItems = calculatedTotalItems;
-        averageTransactionValue = calculatedAverage;
+        print('totalItems : $totalItems');
+        averageTransactionValue = double.parse(formattedAverage);
+        print('averageTransactionValue : $averageTransactionValue');
         products= productList.values.toList();
         print(products.length);
       });

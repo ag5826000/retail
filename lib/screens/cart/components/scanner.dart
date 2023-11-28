@@ -83,6 +83,7 @@ class _BarcodeListScannerWithControllerState
 
 
                     if (querySnapshot.docs.isNotEmpty) {
+                      String productId = querySnapshot.docs[0].id;
                       Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
                       setState(() async {
                         if (demoCartsMap.containsKey(barCode)) {
@@ -98,6 +99,7 @@ class _BarcodeListScannerWithControllerState
                           await player.play(AssetSource('sound/beep.mp3'));
                         } else {
                           final newCartItem = CartItem(
+                            productId: productId,
                             title: jsonData["name"], // Replace with the actual field name
                             price: int.parse(jsonData["mrp"]), // Replace with the actual field name
                             barcode: barCode,
@@ -129,9 +131,11 @@ class _BarcodeListScannerWithControllerState
                         );
                         querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
                         if (querySnapshot.docs.isNotEmpty) {
+                          String productId = querySnapshot.docs[0].id;
                           Map<String, dynamic> jsonData = querySnapshot.docs[0]
                               .data() as Map<String, dynamic>;
                           final newCartItem = CartItem(
+                            productId: productId,
                             title: jsonData["name"],
                             // Replace with the actual field name
                             price: int.parse(jsonData["mrp"]),

@@ -56,35 +56,45 @@ class _CheckoutCardState extends State<CheckoutCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Column(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.payment),
-                          color: Colors.blue, // Color for the payment icon
-                          onPressed: () {
-                            // Handle checkout with UPI
-                            widget.onPressCheckout("UPI");
-                            Navigator.pop(context); // Close the modal sheet
-                          },
-                        ),
-                        Text('Checkout with UPI',
-                            style: TextStyle(color: Colors.blue)),
-                      ],
+                    GestureDetector(
+                      onTap: () {
+                        // Handle checkout with UPI and close the modal sheet
+                        widget.onPressCheckout("UPI");
+                      },
+                      child: Column(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.payment),
+                            color: Colors.blue, // Color for the payment icon
+                            onPressed: () {
+                              // Handle checkout with UPI and close the modal sheet
+                              widget.onPressCheckout("UPI");
+                              Navigator.pop(context);
+                            },
+                          ),
+                          Text('Checkout with UPI', style: TextStyle(color: Colors.blue)),
+                        ],
+                      ),
                     ),
-                    Column(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.money),
-                          color: Colors.green, // Color for the money icon
-                          onPressed: () {
-                            // Handle checkout with cash
-                            widget.onPressCheckout("Cash");
-                            Navigator.pop(context); // Close the modal sheet
-                          },
-                        ),
-                        Text('Checkout with Cash',
-                            style: TextStyle(color: Colors.green)),
-                      ],
+                    GestureDetector(
+                      onTap: () {
+                        // Handle checkout with cash and close the modal sheet
+                        widget.onPressCheckout("Cash");
+                      },
+                      child: Column(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.money),
+                            color: Colors.green, // Color for the money icon
+                            onPressed: () {
+                              // Handle checkout with cash and close the modal sheet
+                              widget.onPressCheckout("Cash");
+                              Navigator.pop(context);
+                            },
+                          ),
+                          Text('Checkout with Cash', style: TextStyle(color: Colors.green)),
+                        ],
+                      ),
                     ),
                   ],
                 ),

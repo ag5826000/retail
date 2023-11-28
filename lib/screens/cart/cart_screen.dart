@@ -28,12 +28,13 @@ class _CartScreenState extends State<CartScreen> {
     super.initState();
     updateTotal();
   }
-  double cartTotal=0;
+
+  double cartTotal = 0;
 
   void onPressCheckout(String paymentMethod) async {
     // Ensure the user is signed in and has a UID
     final User? user = FirebaseAuth.instance.currentUser;
-    if (user == null||cartTotal<=0) {
+    if (user == null || cartTotal <= 0) {
       // Handle the case where the user is not signed in
       // You may want to display an error message or navigate to a login screen
       return;
@@ -47,7 +48,15 @@ class _CartScreenState extends State<CartScreen> {
       // print('transactions/${user.uid}');
       final CollectionReference cartCollection =
       firestore.collection('transactions_${user.uid}');
-      final List<Map<String, dynamic>> cartItems = demoCartsMap.values.map((cart) => cart.toMap()).toList();
+      final List<Map<String, dynamic>> cartItems = demoCartsMap.values.map((
+          cart) => cart.toMap()).toList();
+      // final List<Map<String, dynamic>> cartItems = demoCartsMap.values.map((cart) {
+      //   return {
+      //     'productId': cart.item.productId,
+      //     'numOfItem': cart.numOfItem,
+      //   };
+      // }).toList();
+
       // Create a new document with an auto-generated ID and a timestamp
       final DocumentReference cartDocument = await cartCollection.add({
         'items': cartItems, // Assuming demoCartsMap is a Map of cart items
@@ -70,6 +79,7 @@ class _CartScreenState extends State<CartScreen> {
       // You can display an error message or retry, depending on your use case
     }
   }
+
   void updateTotal() {
     // Calculate the total here
     double total = 0.0;
@@ -126,7 +136,8 @@ class _CartScreenState extends State<CartScreen> {
     return Scaffold(
       appBar: buildAppBar(context),
       body: Body(updateTotal: updateTotal),
-      bottomNavigationBar: CheckoutCard(cartTotal: cartTotal,onPressCheckout: onPressCheckout,),
+      bottomNavigationBar: CheckoutCard(
+        cartTotal: cartTotal, onPressCheckout: onPressCheckout,),
     );
   }
 
@@ -140,34 +151,33 @@ class _CartScreenState extends State<CartScreen> {
           ),
           Text(
             "${demoCartsMap.length} items",
-            style: Theme.of(context).textTheme.caption,
+            style: Theme
+                .of(context)
+                .textTheme
+                .caption,
           ),
         ],
       ),
       actions: [
         Container(
-          margin: EdgeInsets.fromLTRB(0, 18, 9, 0),
-          child: RichText(
-            text: TextSpan(
-              text: "Scan More",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18, // Adjust the font size as needed
-              ),
-            ),
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.fromLTRB(0, 0, 9, 0), // Adjust the margin as needed
+          margin: EdgeInsets.fromLTRB(0, 0, 9, 0),
+          // Adjust the margin as needed
           child: InkWell(
-            onTap: () async => {
-              Navigator.pushNamed(context, BarcodeListScannerWithController.routeName).then((_) => setState(() {}))
+            onTap: () async {
+              Navigator.pushNamed(
+                  context, BarcodeListScannerWithController.routeName).then((
+                  _) => setState(() {}));
             },
-            child: Transform.scale(
-              scale: 1.5, // Adjust the scale factor as needed
-              child: Icon(
-                Icons.qr_code, // You can use the appropriate IconData for QR code
-                color: Colors.black, // Customize the color
+            child: Padding(
+              padding: EdgeInsets.only(right: 26.0),
+              // Adjust the value as needed
+              child: Transform.scale(
+                scale: 2.0, // Adjust the scale factor as needed
+                child: Icon(
+                  Icons.qr_code_outlined,
+                  // You can use the appropriate IconData for QR code
+                  color: Colors.black, // Customize the color
+                ),
               ),
             ),
           ),

@@ -48,7 +48,7 @@ class _ProductDataTableState extends State<ProductDataTable> {
           .get();
 
       Map<String, ProductData> productList = {};
-
+      String productName ="";
       for (QueryDocumentSnapshot document in querySnapshot.docs) {
         Map<String, dynamic> jsonData = document.data() as Map<String, dynamic>;
         double transactionTotal = jsonData['total'];
@@ -56,20 +56,43 @@ class _ProductDataTableState extends State<ProductDataTable> {
         List<dynamic> items = jsonData['items'];
 
         for (var item in items) {
-          String productName = item[widget.groupBy];
+          // String productName = item[widget.groupBy];
+          String productId = item['productId'];
           int currentItems = item['numOfItem'] as int;
-          int productPrice = (item['price'] as int) * currentItems;
+          DocumentSnapshot productDoc = await firestore.collection('products')
+              .doc(productId)
+              .get();
+          if (productDoc.exists) {
+            Map<String, dynamic> productData = productDoc.data() as Map<String, dynamic>;
+            print('widget :$widget');
+            if (widget.groupBy== 'title')
+            { productName = productData['name'];}
+            else if (widget.groupBy== 'category')
+            {
+              String categoryId = productData['categoryId'];
+              DocumentSnapshot category = await firestore.collection('Category')
+                  .doc(categoryId)
+                  .get();
+              if(category.exists)
+              productName = category['categoryName'];
+              print('category productName :$productName');
+            }
 
-          productPrice = productPrice.toInt();
 
-          if (productList.containsKey(productName)) {
-            productList[productName] = ProductData(
-              productName,
-              productList[productName]!.revenue + productPrice,
-              productList[productName]!.count + currentItems,
-            );
-          } else {
-            productList[productName] = ProductData(productName, productPrice, currentItems);
+            int productPrice = (int.parse(productData['mrp'])) * currentItems;
+
+            productPrice = productPrice.toInt();
+
+            if (productList.containsKey(productName)) {
+              productList[productName] = ProductData(
+                productName,
+                productList[productName]!.revenue + productPrice,
+                productList[productName]!.count + currentItems,
+              );
+            } else {
+              productList[productName] =
+                  ProductData(productName, productPrice, currentItems);
+            }
           }
         }
       }
