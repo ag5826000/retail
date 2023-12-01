@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shop_app/screens/cart/cart_screen.dart';
-import 'package:shop_app/screens/home/components/calender.dart';
 
 import '../../../size_config.dart';
-import 'icon_btn_with_counter.dart';
-// import 'search_field.dart';
+import '../../home/components/calender.dart';
+import '../../home/components/icon_btn_with_counter.dart';
 
-class HomeHeader extends StatefulWidget {
+class HistoryHeader extends StatefulWidget {
   final DateTime? rangeStart;
   final DateTime? rangeEnd;
 
-  const HomeHeader({
+  const HistoryHeader({
     Key? key,
     this.rangeStart, this.rangeEnd
   }) : super(key: key);
 
   @override
-  State<HomeHeader> createState() => _HomeHeaderState();
+  State<HistoryHeader> createState() => _HistoryHeaderState();
 }
 
-class _HomeHeaderState extends State<HomeHeader> {
+class _HistoryHeaderState extends State<HistoryHeader> {
   String _formattedDate(DateTime? date) {
     if (date != null) {
       return DateFormat('MM/dd/yyyy').format(date);
@@ -68,7 +67,7 @@ class _HomeHeaderState extends State<HomeHeader> {
           SizedBox(width: 10),
           IconBtnWithCounter(
             svgSrc: "assets/icons/calender.svg",
-            press: () => Navigator.pushNamed(context, Calender.routeName,arguments: {'sourcePage': 'home'},),
+            press: () => Navigator.pushNamed(context, Calender.routeName,arguments: {'sourcePage': 'history'},),
           ),
         ],
       ),

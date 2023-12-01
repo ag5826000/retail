@@ -7,7 +7,8 @@ import 'cart_card.dart';
 
 class Body extends StatefulWidget {
   final VoidCallback updateTotal;
-  Body({required this.updateTotal});
+  final Function showProductDetailsPopup;
+  Body({required this.updateTotal, required this.showProductDetailsPopup});
   @override
   _BodyState createState() => _BodyState();
 }
@@ -67,6 +68,7 @@ class _BodyState extends State<Body> {
                 cart: cart,
                 onRemove: () => onRemove(cart),
                 onAdd: () => onAdd(cart),
+                showProductDetailsPopup: widget.showProductDetailsPopup,
               ),
             ),
           );

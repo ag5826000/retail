@@ -22,8 +22,25 @@ class _ProductDataTableState extends State<ProductDataTable> {
   int _sortColumnIndex=1;
   Map<String, ProductData> productList = {};
   List<ProductData> products=[];
+  Map<String, Map<String, dynamic>> productDetails = {};
+  Map<String, String> categoryMap = {};
 
+  Future<void> _fetchCategories() async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final CollectionReference categoryCollection = firestore.collection('Category');
 
+    try {
+      QuerySnapshot categorySnapshot = await categoryCollection.get();
+      for (QueryDocumentSnapshot categoryDoc in categorySnapshot.docs) {
+        Map<String, dynamic> categoryData = categoryDoc.data() as Map<String, dynamic>;
+        String categoryId = categoryDoc.id;
+        String categoryName = categoryData['categoryName'];
+        categoryMap[categoryId] = categoryName;
+      }
+    } catch (e) {
+      print('Error fetching categories: $e');
+    }
+  }
 
   Future<void> _getTransactionsTotal(DateTime? start, DateTime? end) async {
     if (start == null || end == null) {
@@ -42,23 +59,49 @@ class _ProductDataTableState extends State<ProductDataTable> {
     final CollectionReference transactionsCollection = firestore.collection('transactions_$userId');
 
     try {
+      if(widget.groupBy!='name')
+      await _fetchCategories();
       QuerySnapshot querySnapshot = await transactionsCollection
           .where('timestamp', isGreaterThanOrEqualTo: start)
           .where('timestamp', isLessThanOrEqualTo: end)
           .get();
 
       Map<String, ProductData> productList = {};
+      Set<String> uniqueProductIds = {};
+      for (QueryDocumentSnapshot document in querySnapshot.docs) {
+        List<dynamic> items = document['items'];
+        for (var item in items) {
+          uniqueProductIds.add(item['productId']);
+        }
+      }
 
+      // Fetch product details for the unique product IDs
+      final List<DocumentSnapshot> productDocs = await Future.wait(
+        uniqueProductIds.map((productId) =>
+            firestore.collection('products').doc(productId).get()),
+      );
+
+      // Create a map of product details based on product ID
+
+      for (var productDoc in productDocs) {
+        productDetails[productDoc.id] = productDoc.data() as Map<String, dynamic>;
+      }
+      //print(productDetails.toString());
       for (QueryDocumentSnapshot document in querySnapshot.docs) {
         Map<String, dynamic> jsonData = document.data() as Map<String, dynamic>;
-        double transactionTotal = jsonData['total'];
 
         List<dynamic> items = jsonData['items'];
 
         for (var item in items) {
-          String productName = item[widget.groupBy];
+          String productID=item['productId'];
+          Map<String, dynamic>? productData=productDetails[productID];
+          String productName="";
+          if(widget.groupBy =='name')
+            productName=productData?[widget.groupBy];
+          else
+            productName=categoryMap[productData?[widget.groupBy]]!;
           int currentItems = item['numOfItem'] as int;
-          int productPrice = (item['price'] as int) * currentItems;
+          int productPrice = (item['sellingPrice'] as int) * currentItems;
 
           productPrice = productPrice.toInt();
 
@@ -109,7 +152,9 @@ class _ProductDataTableState extends State<ProductDataTable> {
   Widget build(BuildContext context) {
     var myColumns = [
       DataColumn(
-        label: Text('Product Name'),
+        label: Text(widget.groupBy == "name"
+            ? "Product Name"
+            : "Category Name",),
         onSort: (columnIndex, sortAscending) {
           setState(() {
             _sortColumnIndex = columnIndex;

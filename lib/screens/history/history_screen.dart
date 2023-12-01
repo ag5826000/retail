@@ -5,11 +5,10 @@ import 'package:shop_app/enums.dart';
 import '../../size_config.dart';
 import 'components/body.dart';
 
-class HomeScreen extends StatelessWidget {
-  static String routeName = "/home";
+class HistoryScreen extends StatelessWidget {
+  static String routeName = "/history";
   @override
   Widget build(BuildContext context) {
-
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     DateTime? rangeStart = args?['rangeStart'];
     DateTime? rangeEnd = args?['rangeEnd'];
@@ -29,8 +28,8 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       body: Body(rangeStart: rangeStart,
-        rangeEnd: rangeEnd),
-      bottomNavigationBar: CustomBottomNavBar(selectedMenu: MenuState.home),
+          rangeEnd: rangeEnd),
+      bottomNavigationBar: CustomBottomNavBar(selectedMenu: MenuState.favourite),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () {
       //     // Add your code to open the QR code scanner here.

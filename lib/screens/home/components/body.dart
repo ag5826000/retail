@@ -29,6 +29,7 @@ class _BodyState extends State<Body> {
   int totalTransactions =0;
   Map<String, ProductData> productList = {};
   List<ProductData> products=[];
+  Map<String, Map<String, dynamic>> productDetails = {};
 
   @override
   void initState() {
@@ -50,7 +51,8 @@ class _BodyState extends State<Body> {
 
     final String userId = user.uid;
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    final CollectionReference transactionsCollection = firestore.collection('transactions_$userId');
+    final CollectionReference transactionsCollection =
+    firestore.collection('transactions_$userId');
 
     try {
       QuerySnapshot querySnapshot = await transactionsCollection
@@ -61,42 +63,65 @@ class _BodyState extends State<Body> {
       double total = 0;
       int calculatedTotalItems = 0;
 
+      Map<String, ProductData> productMap = {};
+
+      // Gather unique product IDs from all transactions
+      Set<String> uniqueProductIds = {};
       for (QueryDocumentSnapshot document in querySnapshot.docs) {
-        Map<String, dynamic> jsonData = document.data() as Map<String, dynamic>;
-        double transactionTotal = jsonData['total'];
-
-        List<dynamic> items = jsonData['items'];
-
+        List<dynamic> items = document['items'];
         for (var item in items) {
-          String productName = item['title'];
-          int currentItems=item['numOfItem'] as int;
-          int productPrice = (item['price'] as int) * (currentItems);
+          uniqueProductIds.add(item['productId']);
+        }
+      }
+
+      // Fetch product details for the unique product IDs
+      final List<DocumentSnapshot> productDocs = await Future.wait(
+        uniqueProductIds.map((productId) =>
+            firestore.collection('products').doc(productId).get()),
+      );
+
+      // Create a map of product details based on product ID
+
+      for (var productDoc in productDocs) {
+        productDetails[productDoc.id] = productDoc.data() as Map<String, dynamic>;
+      }
+      // print(productDetails.toString());
+      // Process each transaction
+      for (QueryDocumentSnapshot document in querySnapshot.docs) {
+        List<dynamic> items = document['items'];
+        for (var item in items) {
+          String productId = item['productId'];
+          Map<String, dynamic> productData = productDetails[productId] ?? {};
+
+          String productName = productData['name'] ?? 'Unknown Product';
+          int currentItems = item['numOfItem'] as int;
+          int productPrice = (item['sellingPrice'] as int) * currentItems;
           calculatedTotalItems += currentItems;
-          if (productList.containsKey(productName)) {
-            productList[productName] = ProductData(
+
+          if (productMap.containsKey(productId)) {
+            productMap[productId] = ProductData(
               productName,
-              productList[productName]!.revenue + productPrice,
-              productList[productName]!.count + currentItems,
+              productMap[productId]!.revenue + productPrice,
+              productMap[productId]!.count + currentItems,
             );
           } else {
-            productList[productName] = ProductData(productName, productPrice, currentItems);
+            productMap[productId] =
+                ProductData(productName, productPrice, currentItems);
           }
-          // productRevenue.update(productName, (value) => value + productPrice, ifAbsent: () => productPrice);
-          // productCount.update(productName, (value) => value + calculatedTotalItems, ifAbsent: () => calculatedTotalItems);
         }
 
-        total += transactionTotal;
+        total += document['total'];
       }
-      totalTransactions=querySnapshot.size;
+
+      totalTransactions = querySnapshot.size;
       double calculatedAverage = total / querySnapshot.size;
-      products=productList.values.toList();
-      //print(productList.values.toList().length);
+      products = productMap.values.toList();
+
       setState(() {
         totalValue = total;
         totalItems = calculatedTotalItems;
         averageTransactionValue = calculatedAverage;
-        products= productList.values.toList();
-        print(products.length);
+        products = productMap.values.toList();
       });
     } catch (e) {
       print('Error retrieving transactions: $e');
@@ -152,12 +177,12 @@ class _BodyState extends State<Body> {
                 title: "Top Revenue Products",
                 cta: "See All Products",
                 press: () {
-                  Navigator.pushNamed(context, AllProductsTable.routeName,   arguments: {'rangeStart': widget.rangeStart, 'rangeEnd':  widget.rangeEnd,'numberOfProducts':-1,'groupBy': "title",'appbarText': 'All Products Table'});
+                  Navigator.pushNamed(context, AllProductsTable.routeName,   arguments: {'rangeStart': widget.rangeStart, 'rangeEnd':  widget.rangeEnd,'numberOfProducts':-1,'groupBy': "name",'appbarText': 'All Products Table','productDetails':productDetails});
                 },
               ),
             ),
             SizedBox(height: getProportionateScreenWidth(10)),
-            ProductDataTable(rangeStart: widget.rangeStart, rangeEnd :widget.rangeEnd, numberOfProducts: 5, groupBy: "title"),
+            ProductDataTable(rangeStart: widget.rangeStart, rangeEnd :widget.rangeEnd, numberOfProducts: 5, groupBy: "name"),
             SizedBox(height: getProportionateScreenWidth(15)),
             Padding(
               padding:
@@ -166,12 +191,12 @@ class _BodyState extends State<Body> {
                 title: "Category Wise Performance",
                 cta: "See All",
                 press: () {
-                  Navigator.pushNamed(context, AllProductsTable.routeName,   arguments: {'rangeStart': widget.rangeStart, 'rangeEnd':  widget.rangeEnd,'numberOfProducts':-1,'groupBy': "category",'appbarText': 'All Categories Table'});
+                  Navigator.pushNamed(context, AllProductsTable.routeName,   arguments: {'rangeStart': widget.rangeStart, 'rangeEnd':  widget.rangeEnd,'numberOfProducts':-1,'groupBy': "categoryId",'appbarText': 'All Categories Table','productDetails':productDetails});
                 },
               ),
             ),
             SizedBox(height: getProportionateScreenWidth(10)),
-            ProductDataTable(rangeStart: widget.rangeStart, rangeEnd :widget.rangeEnd, numberOfProducts: 5,  groupBy: "category"),
+            ProductDataTable(rangeStart: widget.rangeStart, rangeEnd :widget.rangeEnd, numberOfProducts: 5,  groupBy: "categoryId"),
             // Categories(),
             // SpecialOffers(),
             // SizedBox(height: getProportionateScreenWidth(30)),

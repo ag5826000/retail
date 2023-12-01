@@ -73,92 +73,92 @@ class _BarcodeListScannerWithControllerState
                 },
                 fit: BoxFit.contain,
                 onDetect: (barcode) {
-                  setState(() async {
-                    final player = AudioPlayer();
-                    print(barcode.barcodes[0].displayValue);
-                    String barCode=barcode.barcodes[0].displayValue.toString();
-                    var db = FirebaseFirestore.instance;
-                    CollectionReference productsCollection =db.collection('products');
-                    QuerySnapshot querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
-
-
-                    if (querySnapshot.docs.isNotEmpty) {
-                      Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
-                      setState(() async {
-                        if (demoCartsMap.containsKey(barCode)) {
-                          demoCartsMap[barCode]!.numOfItem++;
-                          setState(() {
-                            showAnimatedIcon  = true;
-                          });
-                          Future.delayed(Duration(seconds: 1), () {
-                            setState(() {
-                              showAnimatedIcon = false;
-                            });
-                          });
-                          await player.play(AssetSource('sound/beep.mp3'));
-                        } else {
-                          final newCartItem = CartItem(
-                            title: jsonData["name"], // Replace with the actual field name
-                            price: int.parse(jsonData["mrp"]), // Replace with the actual field name
-                            barcode: barCode,
-                            category: jsonData["category"]
-                          );
-
-                          demoCartsMap[barCode] = Cart(item: newCartItem, numOfItem: 1);
-                          setState(() {
-                            showAnimatedIcon  = true;
-                          });
-                          Future.delayed(Duration(seconds: 1), () {
-                            setState(() {
-                              showAnimatedIcon = false;
-                            });
-                          });
-                          await player.play(AssetSource('sound/beep.mp3'));
-                        }
-                      });
-                    }
-                    else {
-                      setState(() async {
-                        await player.play(AssetSource('sound/beep.mp3'));
-                        _startOrStop();
-                        await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return BarcodePopupForm(scannedBarcode: barCode);
-                          },
-                        );
-                        querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
-                        if (querySnapshot.docs.isNotEmpty) {
-                          Map<String, dynamic> jsonData = querySnapshot.docs[0]
-                              .data() as Map<String, dynamic>;
-                          final newCartItem = CartItem(
-                            title: jsonData["name"],
-                            // Replace with the actual field name
-                            price: int.parse(jsonData["mrp"]),
-                            // Replace with the actual field name
-                            barcode: barCode,
-                            category: jsonData["category"]
-                          );
-
-                          demoCartsMap[barCode] =
-                              Cart(item: newCartItem, numOfItem: 1);
-                          setState(() {
-                            showAnimatedIcon  = true;
-                          });
-                          Future.delayed(Duration(seconds: 1), () {
-                            setState(() {
-                              showAnimatedIcon = false;
-                            });
-                          });
-                        };
-                        _startOrStop();
-                      });
-                    }
-
-
-                    this.barcode = barcode;
-
-                  });
+                  // setState(() async {
+                  //   final player = AudioPlayer();
+                  //   print(barcode.barcodes[0].displayValue);
+                  //   String barCode=barcode.barcodes[0].displayValue.toString();
+                  //   var db = FirebaseFirestore.instance;
+                  //   CollectionReference productsCollection =db.collection('products');
+                  //   QuerySnapshot querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
+                  //
+                  //
+                  //   if (querySnapshot.docs.isNotEmpty) {
+                  //     Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
+                  //     setState(() async {
+                  //       if (demoCartsMap.containsKey(barCode)) {
+                  //         demoCartsMap[barCode]!.numOfItem++;
+                  //         setState(() {
+                  //           showAnimatedIcon  = true;
+                  //         });
+                  //         Future.delayed(Duration(seconds: 1), () {
+                  //           setState(() {
+                  //             showAnimatedIcon = false;
+                  //           });
+                  //         });
+                  //         await player.play(AssetSource('sound/beep.mp3'));
+                  //       } else {
+                  //         final newCartItem = CartItem(
+                  //           title: jsonData["name"], // Replace with the actual field name
+                  //           price: int.parse(jsonData["mrp"]), // Replace with the actual field name
+                  //           barcode: barCode,
+                  //           category: jsonData["category"]
+                  //         );
+                  //
+                  //         demoCartsMap[barCode] = Cart(item: newCartItem, numOfItem: 1);
+                  //         setState(() {
+                  //           showAnimatedIcon  = true;
+                  //         });
+                  //         Future.delayed(Duration(seconds: 1), () {
+                  //           setState(() {
+                  //             showAnimatedIcon = false;
+                  //           });
+                  //         });
+                  //         await player.play(AssetSource('sound/beep.mp3'));
+                  //       }
+                  //     });
+                  //   }
+                  //   else {
+                  //     setState(() async {
+                  //       await player.play(AssetSource('sound/beep.mp3'));
+                  //       _startOrStop();
+                  //       // await showDialog(
+                  //       //   context: context,
+                  //       //   builder: (BuildContext context) {
+                  //       //     return BarcodePopupForm(scannedBarcode: barCode);
+                  //       //   },
+                  //       // );
+                  //       querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
+                  //       if (querySnapshot.docs.isNotEmpty) {
+                  //         Map<String, dynamic> jsonData = querySnapshot.docs[0]
+                  //             .data() as Map<String, dynamic>;
+                  //         final newCartItem = CartItem(
+                  //           title: jsonData["name"],
+                  //           // Replace with the actual field name
+                  //           price: int.parse(jsonData["mrp"]),
+                  //           // Replace with the actual field name
+                  //           barcode: barCode,
+                  //           category: jsonData["category"]
+                  //         );
+                  //
+                  //         demoCartsMap[barCode] =
+                  //             Cart(item: newCartItem, numOfItem: 1);
+                  //         setState(() {
+                  //           showAnimatedIcon  = true;
+                  //         });
+                  //         Future.delayed(Duration(seconds: 1), () {
+                  //           setState(() {
+                  //             showAnimatedIcon = false;
+                  //           });
+                  //         });
+                  //       };
+                  //       _startOrStop();
+                  //     });
+                  //   }
+                  //
+                  //
+                  //   this.barcode = barcode;
+                  //
+                  // });
                 },
               ),
               Align(

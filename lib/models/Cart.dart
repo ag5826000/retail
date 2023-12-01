@@ -1,17 +1,25 @@
-
-
-import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-
-import 'Product.dart';
-
 class CartItem
 {
-  String title;
+  String productId;
+  String name;
   int price;
   String barcode;
-  String category;
-  CartItem({required this.title, required this.price,required this.barcode,required this.category});
+  String categoryId;
+  int mrp;
+  String image;
+  CartItem({required this.name, required this.price,required this.barcode,required this.categoryId,required this.productId,required this.mrp,required this.image});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'productId': productId,
+      'name': name,
+      "price": price,
+      "barcode": barcode,
+      "categoryId": categoryId,
+      "mrp": mrp,
+      "image": image,
+    };
+    }
 }
 
 class Cart {
@@ -22,11 +30,13 @@ class Cart {
 
   Map<String, dynamic> toMap() {
     return {
-      'title': item.title,
-      'price':item.price,
-      'barcode':item.barcode,
-      'category' :item.category,
+      // 'title': item.title,
+      // 'price':item.price,
+      // 'barcode':item.barcode,
+      // 'category' :item.category,
       'numOfItem': numOfItem,
+      'productId': item.productId,
+      'sellingPrice':item.price,
     };
   }
 }

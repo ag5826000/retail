@@ -2,12 +2,14 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shop_app/models/Cart.dart';
 import 'package:shop_app/screens/cart/components/scanner.dart';
 import 'package:shop_app/screens/login_success/login_success_screen.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import '../home/components/icon_btn_with_counter.dart';
+import 'components/barcodePopUp.dart';
 import 'components/body.dart';
 import 'components/check_out_card.dart';
 import 'components/body.dart';
@@ -45,6 +47,13 @@ class _CartScreenState extends State<CartScreen> {
     try {
       // Create a Firestore collection reference with the user's UID as a prefix
       // print('transactions/${user.uid}');
+      DocumentSnapshot userSnapshot =
+      await firestore.collection('users').doc(user.uid).get();
+      String userPincode = userSnapshot['pincode'];
+      final metadata = {
+        'pincode': userPincode,
+        // Add other metadata fields if needed
+      };
       final CollectionReference cartCollection =
       firestore.collection('transactions_${user.uid}');
       final List<Map<String, dynamic>> cartItems = demoCartsMap.values.map((cart) => cart.toMap()).toList();
@@ -54,8 +63,14 @@ class _CartScreenState extends State<CartScreen> {
         'total': cartTotal, // Implement a function to calculate the total
         'timestamp': FieldValue.serverTimestamp(), // Add the timestamp field
         'paymentMethod': paymentMethod,
+        'metadata': metadata
       });
-
+      final CollectionReference transactions =firestore.collection('transactions');
+      final transactionDocumentReference=transactions.add({
+        'userID': user.uid,
+        'transactionID': cartDocument.id,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
       // Cart data has been successfully saved to Firestore, clear the demo cart
       setState(() {
         demoCartsMap.clear();
@@ -85,39 +100,213 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  // Future<void> scanBarcode(BuildContext context) async {
-  //   // var res = await FlutterBarcodeScanner.scanBarcode(
-  //   //     "#ff6666",
-  //   //     "Cancel",
-  //   //     true,
-  //   //     ScanMode.BARCODE);
-  //   FlutterBarcodeScanner.getBarcodeStreamReceiver("#ff6666", "Cancel", true, ScanMode.BARCODE)
-  //       ?.listen((barcode) async {
-  //     final player = AudioPlayer();
-  //     print(barcode);
-  //     if(barcode!="-1") {
-  //       if (barcode == "8901088080262") {
-  //         setState(() {
-  //           demoCarts[0].numOfItem++;
-  //         });
-  //       }
-  //       else {
-  //         setState(() {
-  //           demoCarts[1].numOfItem++;
-  //         });
-  //       }
-  //       updateTotal();
-  //       await player.play(AssetSource('sound/beep.mp3'));
-  //     }
-  //   });
-  //
-  //     // if (res is String && res!="-1") {
-  //     // final player = AudioPlayer();
-  //     // await player.play(AssetSource('sound/beep.mp3'));
-  //     // var result = res;
-  //     // print(res);
-  //
-  //   }
+  Future<void> scanBarcodeNormal() async {
+    String barCode;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barCode = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      print(barCode);
+      if (barCode != '-1') {
+        final player = AudioPlayer();
+        player.play(AssetSource('sound/beep.mp3'));
+        var db = FirebaseFirestore.instance;
+        CollectionReference productsCollection =db.collection('products');
+        QuerySnapshot querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
+        if (querySnapshot.docs.isNotEmpty) {
+          Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
+          String productId = querySnapshot.docs[0].id;
+          await showProductDetailsPopup(jsonData, barCode,productId);
+
+        }
+        else {
+          setState(() async {
+            await player.play(AssetSource('sound/beep.mp3'));
+
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return BarcodePopupForm(scannedBarcode: barCode,onScanAgain: scanBarcodeNormal,isPresent: 0,);
+              },
+            );
+            querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
+            if (querySnapshot.docs.isNotEmpty) {
+              Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
+              String productId = querySnapshot.docs[0].id;
+              await showProductDetailsPopup(jsonData, barCode,productId);
+
+            }
+          });
+        }
+
+
+      }
+    } on PlatformException {
+      barCode = 'Failed to get platform version.';
+    }
+  }
+
+
+  Future<void> showProductDetailsPopup(
+      Map<String, dynamic> productData,
+      String barcode,
+      String productId,
+      ) async {
+    TextEditingController sellingPriceController =
+    TextEditingController(text: productData["mrp"].toString());
+    TextEditingController quantityController = TextEditingController();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(
+            child: Text(
+              productData["name"],
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Container(
+              width: double.maxFinite,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 8.0),
+                    Center(
+                      child: Image.network(
+                        productData["image"],
+                        height: 100.0,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent? loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          } else {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+                    Center(
+                      child: Text(
+                        "MRP: ${productData["mrp"]}",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: sellingPriceController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Selling Price',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Selling Price is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: quantityController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Quantity Sold',
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter Quantity Sold',
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Quantity is required';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  int sellingPrice =
+                      int.tryParse(sellingPriceController.text) ?? 0;
+                  int quantity = int.tryParse(quantityController.text) ?? 0;
+
+                  if (sellingPrice > 0 && quantity > 0) {
+                    final newCartItem = CartItem(
+                      name: productData["name"],
+                      mrp: int.parse(productData["mrp"].toString()),
+                      barcode: barcode,
+                      categoryId: productData["categoryId"],
+                      productId: productId,
+                      price: sellingPrice,
+                      image: productData["image"],
+                    );
+
+                    setState(() {
+                      demoCartsMap[barcode] =
+                          Cart(item: newCartItem, numOfItem: quantity);
+                      updateTotal();
+                    });
+
+                    Navigator.of(context).pop(); // Close the pop-up
+                  }
+                }
+              },
+              child: Text(
+                'Add to Cart',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return BarcodePopupForm(
+                      scannedBarcode: productData['barcode'],
+                      onScanAgain: scanBarcodeNormal,
+                      isPresent: 1,
+                    );
+                  },
+                );
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Update',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 
   @override
@@ -125,7 +314,7 @@ class _CartScreenState extends State<CartScreen> {
     updateTotal();
     return Scaffold(
       appBar: buildAppBar(context),
-      body: Body(updateTotal: updateTotal),
+      body: Body(updateTotal: updateTotal,showProductDetailsPopup: showProductDetailsPopup),
       bottomNavigationBar: CheckoutCard(cartTotal: cartTotal,onPressCheckout: onPressCheckout,),
     );
   }
@@ -161,7 +350,8 @@ class _CartScreenState extends State<CartScreen> {
           margin: EdgeInsets.fromLTRB(0, 0, 9, 0), // Adjust the margin as needed
           child: InkWell(
             onTap: () async => {
-              Navigator.pushNamed(context, BarcodeListScannerWithController.routeName).then((_) => setState(() {}))
+              scanBarcodeNormal()
+              // Navigator.pushNamed(context, BarcodeListScannerWithController.routeName).then((_) => setState(() {}))
             },
             child: Transform.scale(
               scale: 1.5, // Adjust the scale factor as needed

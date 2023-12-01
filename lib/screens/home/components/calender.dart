@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shop_app/screens/history/history_screen.dart';
 import 'package:shop_app/screens/home/home_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -6,6 +7,7 @@ import 'utils.dart';
 
 class Calender extends StatefulWidget {
   static String routeName = "/calender";
+
   @override
   _CalenderState createState() => _CalenderState();
 }
@@ -19,8 +21,11 @@ class _CalenderState extends State<Calender> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
 
+
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final String sourcePage = args?['sourcePage'] ?? '';
     return Scaffold(
       appBar: AppBar(
         title: Text('Select Date Range'),
@@ -31,10 +36,21 @@ class _CalenderState extends State<Calender> {
                 // If a date range is selected, navigate to a new page and pass the range.
                 // print(_rangeStart);
                 // print(_rangeEnd);
-                Navigator.pushReplacementNamed(context, HomeScreen.routeName, arguments: {
-                  'rangeStart': _rangeStart,
-                  'rangeEnd': _rangeEnd,
-                });
+                if(sourcePage=='home') {
+                  Navigator.pushReplacementNamed(
+                      context, HomeScreen.routeName, arguments: {
+                    'rangeStart': _rangeStart,
+                    'rangeEnd': _rangeEnd,
+                  });
+                }
+                else
+                  {
+                    Navigator.pushReplacementNamed(
+                        context, HistoryScreen.routeName, arguments: {
+                      'rangeStart': _rangeStart,
+                      'rangeEnd': _rangeEnd,
+                    });
+                  }
               } else {
                 showDialog(
                   context: context,

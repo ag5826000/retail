@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shop_app/screens/history/history_screen.dart';
 import 'package:shop_app/screens/home/home_screen.dart';
 import 'package:shop_app/screens/profile/profile_screen.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
@@ -53,11 +56,12 @@ class CustomBottomNavBar extends StatelessWidget {
                     Navigator.pushNamed(context, HomeScreen.routeName),
               ),
               IconButton(
-                icon: SvgPicture.asset("assets/icons/Heart Icon.svg",
+                icon: SvgPicture.asset("assets/icons/transaction.svg",
                   color: MenuState.favourite == selectedMenu
                       ? kPrimaryColor
                       : inActiveIconColor,),
-                onPressed: () {},
+                onPressed: () =>
+                    Navigator.pushNamed(context, HistoryScreen.routeName),
               ),
               IconButton(
                 icon: SvgPicture.asset("assets/icons/Chat bubble Icon.svg",
