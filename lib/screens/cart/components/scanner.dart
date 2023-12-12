@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -25,13 +26,56 @@ class _BarcodeListScannerWithControllerState
 
   BarcodeCapture? barcode;
   bool showAnimatedIcon  = false;
+  late Timer movingLineTimer;
+  late double linePosition ;
+  double lineSpeed = 2.0; // Adjust as needed
+  late double lineLower;
+  late double lineUpper;
+  double scanWindowWidthPercentage = 80.0; // Adjust as needed
+  double scanWindowHeightPercentage = 20.0; // Adjust as needed
+  List<String> scannedBarcodes = [];
 
-  final MobileScannerController controller = MobileScannerController(
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize a timer to move the line up and down
+    movingLineTimer = Timer.periodic(Duration(milliseconds: 18), (Timer timer) {
+      setState(() {
+        linePosition += lineSpeed;
+        if (linePosition > lineLower) {
+          lineSpeed = lineSpeed*-1;
+        }
+        else if(linePosition <lineUpper)
+          {
+            lineSpeed = lineSpeed*-1;
+          }
+      });
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    linePosition = MediaQuery.of(context).size.height / 2;
+    lineLower = linePosition + MediaQuery.of(context).size.height * (scanWindowHeightPercentage / 100) / 2;
+    lineUpper = linePosition - MediaQuery.of(context).size.height * (scanWindowHeightPercentage / 100) / 2;
+  }
+
+  @override
+  void dispose() {
+    // Cancel the timer when the widget is disposed
+    movingLineTimer.cancel();
+    super.dispose();
+  }
+
+  MobileScannerController controller = MobileScannerController(
     torchEnabled: false,
     // formats: [BarcodeFormat.qrCode]
     // facing: CameraFacing.front,
-    detectionSpeed: DetectionSpeed.normal,
-    detectionTimeoutMs: 1500,
+    detectionSpeed: DetectionSpeed.unrestricted,
+    detectionTimeoutMs: 1,
     // returnImage: false,
   );
 
@@ -57,8 +101,242 @@ class _BarcodeListScannerWithControllerState
     }
   }
 
+  Future<void> showProductDetailsPopup(
+      Map<String, dynamic> productData,
+      String barcode,
+      String productId,
+      ) async {
+    TextEditingController sellingPriceController =
+    TextEditingController(text: productData["mrp"].toString());
+    TextEditingController quantityController = TextEditingController();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(
+            child: Text(
+              productData["name"],
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Container(
+              width: double.maxFinite,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 8.0),
+                    Center(
+                      child: Image.network(
+                        productData["image"],
+                        height: 100.0,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent? loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          } else {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+                    Center(
+                      child: Text(
+                        "MRP: ${productData["mrp"]}",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: sellingPriceController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Selling Price',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Selling Price is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: quantityController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Quantity Sold',
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter Quantity Sold',
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Quantity is required';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  int sellingPrice =
+                      int.tryParse(sellingPriceController.text) ?? 0;
+                  int quantity = int.tryParse(quantityController.text) ?? 0;
+
+                  if (sellingPrice > 0 && quantity > 0) {
+                    final newCartItem = CartItem(
+                      name: productData["name"],
+                      mrp: int.parse(productData["mrp"].toString()),
+                      barcode: barcode,
+                      categoryId: productData["categoryId"],
+                      productId: productId,
+                      price: sellingPrice,
+                      image: productData["image"],
+                    );
+
+                    setState(() {
+                      demoCartsMap[barcode] =
+                          Cart(item: newCartItem, numOfItem: quantity);
+                    });
+
+                    Navigator.of(context).pop(); // Close the pop-up
+                  }
+                }
+              },
+              child: Text(
+                'Add to Cart',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return BarcodePopupForm(
+                      scannedBarcode: productData['barcode'],
+                      isPresent: 1,
+                    );
+                  },
+                );
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Update',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> processBarcode(String barCode) async {
+    if (barCode != '-1') {
+      final player = AudioPlayer();
+      var db = FirebaseFirestore.instance;
+      CollectionReference productsCollection =db.collection('products');
+      QuerySnapshot querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
+      if (querySnapshot.docs.isNotEmpty) {
+        player.play(AssetSource('sound/beep.mp3'));
+        Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
+        String productId = querySnapshot.docs[0].id;
+        await showProductDetailsPopup(jsonData, barCode,productId);
+        _startOrStop();
+      }
+      else {
+        setState(() async {
+          await player.play(AssetSource('sound/beep.mp3'));
+
+          final metadata = {
+            'brand': "NA",
+            // Add other metadata fields if needed
+          };
+
+          final product = <String, dynamic>{
+            "name": barCode,
+            "mrp": 0,
+            "barcode": barCode,
+            "lastUpdatedAt": FieldValue.serverTimestamp(),
+            "categoryId": "fmcg_000",
+            "metadata": metadata,
+          };
+          product["image"] = "https://firebasestorage.googleapis.com/v0/b/retail-773cc.appspot.com/o/product_images%2FImageNotFound.jpeg?alt=media&token=856abe68-93b5-49e9-91bc-006c8e6f399a";
+
+          db.collection("products").add(product).then((DocumentReference doc) =>
+              print('DocumentSnapshot added with ID: ${doc.id}'));
+
+          final notFound = <String, dynamic>{
+            "barcode": barCode,
+          };
+          db.collection("addInDB").add(notFound);
+
+          // await showDialog(
+          //   context: context,
+          //   builder: (BuildContext context) {
+          //     return BarcodePopupForm(scannedBarcode: barCode,isPresent: 0,);
+          //   },
+          // );
+
+          querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
+          if (querySnapshot.docs.isNotEmpty) {
+            Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
+            String productId = querySnapshot.docs[0].id;
+            await showProductDetailsPopup(jsonData, barCode,productId);
+
+          }
+          _startOrStop();
+        });
+      }
+
+
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+
+
+
+    double scanWindowWidth = MediaQuery.of(context).size.width * (scanWindowWidthPercentage / 100);
+    double scanWindowHeight = MediaQuery.of(context).size.height * (scanWindowHeightPercentage / 100);
+
+
+    final scanWindow = Rect.fromCenter(
+      center: MediaQuery.of(context).size.center(Offset.zero),
+      width: scanWindowWidth,
+      height: scanWindowHeight,
+    );
     return Scaffold(
       appBar: AppBar(title: const Text('Scan Barcode')),
       backgroundColor: Colors.black,
@@ -72,7 +350,31 @@ class _BarcodeListScannerWithControllerState
                   return ScannerErrorWidget(error: error);
                 },
                 fit: BoxFit.contain,
-                onDetect: (barcode) {
+                scanWindow: scanWindow,
+                onDetect: (barcode) async {
+
+                  String barCode=barcode.barcodes[0].displayValue.toString();
+                  scannedBarcodes.add(barCode);
+                  print("yo =>"+barCode);
+
+                  // Process the barcodes after scanning a sufficient number
+                  if (scannedBarcodes.length >= 11) {
+                    // Find the barcode with maximum frequency
+                    Map<String, int> barcodeCounts = {};
+
+                    for (String barcode in scannedBarcodes) {
+                      barcodeCounts[barcode] = (barcodeCounts[barcode] ?? 0) + 1;
+                    }
+
+                    // Find the barcode with maximum frequency
+                    String mostFrequentBarcode = barcodeCounts.keys.reduce((a, b) =>
+                    barcodeCounts[a]! > barcodeCounts[b]! ? a : b);
+                    print("Yeahhhh"+barcodeCounts.toString());
+                    print("amigo"+mostFrequentBarcode);
+                    processBarcode(mostFrequentBarcode);
+                    _startOrStop();
+                    scannedBarcodes.clear();
+                  }
                   // setState(() async {
                   //   final player = AudioPlayer();
                   //   print(barcode.barcodes[0].displayValue);
@@ -160,6 +462,12 @@ class _BarcodeListScannerWithControllerState
                   //
                   // });
                 },
+                onScannerStarted: (_) {
+                  controller.setZoomScale(0.25);
+                },
+              ),
+              CustomPaint(
+                painter: ScannerOverlay(scanWindow),
               ),
               Align(
                 alignment: Alignment.topCenter,
@@ -184,6 +492,15 @@ class _BarcodeListScannerWithControllerState
                       ),
                     ),
                   ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: linePosition),
+                  width: scanWindow.width,
+                  height: 2.0, // Thickness of the moving line
+                  color: Colors.red,
                 ),
               ),
               Align(
@@ -306,5 +623,34 @@ class _BarcodeListScannerWithControllerState
         },
       ),
     );
+  }
+}
+
+class ScannerOverlay extends CustomPainter {
+  ScannerOverlay(this.scanWindow);
+
+  final Rect scanWindow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final backgroundPath = Path()..addRect(Rect.largest);
+    final cutoutPath = Path()..addRect(scanWindow);
+
+    final backgroundPaint = Paint()
+      ..color = Colors.black.withOpacity(0.5)
+      ..style = PaintingStyle.fill
+      ..blendMode = BlendMode.dstOut;
+
+    final backgroundWithCutout = Path.combine(
+      PathOperation.difference,
+      backgroundPath,
+      cutoutPath,
+    );
+    canvas.drawPath(backgroundWithCutout, backgroundPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

@@ -7,9 +7,8 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class BarcodePopupForm extends StatefulWidget {
   final String scannedBarcode;
-  final VoidCallback onScanAgain;
   final int isPresent;
-  BarcodePopupForm({required this.scannedBarcode,required this.onScanAgain,required this.isPresent});
+  BarcodePopupForm({required this.scannedBarcode,required this.isPresent});
   @override
   _BarcodePopupFormState createState() => _BarcodePopupFormState();
 }
@@ -314,6 +313,7 @@ class _BarcodePopupFormState extends State<BarcodePopupForm> {
           // Delete the current image from Firebase Storage
           String currentImageUrl = existingProduct.docs.first['image'];
           if (currentImageUrl.isNotEmpty) {
+            if(currentImageUrl != "https://firebasestorage.googleapis.com/v0/b/retail-773cc.appspot.com/o/product_images%2FImageNotFound.jpeg?alt=media&token=856abe68-93b5-49e9-91bc-006c8e6f399a")
             await firebase_storage.FirebaseStorage.instance.refFromURL(currentImageUrl).delete();
           }
 

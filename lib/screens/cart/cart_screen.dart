@@ -100,52 +100,6 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  Future<void> scanBarcodeNormal() async {
-    String barCode;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      barCode = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-      print(barCode);
-      if (barCode != '-1') {
-        final player = AudioPlayer();
-        player.play(AssetSource('sound/beep.mp3'));
-        var db = FirebaseFirestore.instance;
-        CollectionReference productsCollection =db.collection('products');
-        QuerySnapshot querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
-        if (querySnapshot.docs.isNotEmpty) {
-          Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
-          String productId = querySnapshot.docs[0].id;
-          await showProductDetailsPopup(jsonData, barCode,productId);
-
-        }
-        else {
-          setState(() async {
-            await player.play(AssetSource('sound/beep.mp3'));
-
-            await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return BarcodePopupForm(scannedBarcode: barCode,onScanAgain: scanBarcodeNormal,isPresent: 0,);
-              },
-            );
-            querySnapshot = await productsCollection.where('barcode', isEqualTo: barCode).get();
-            if (querySnapshot.docs.isNotEmpty) {
-              Map<String, dynamic> jsonData = querySnapshot.docs[0].data() as Map<String, dynamic>;
-              String productId = querySnapshot.docs[0].id;
-              await showProductDetailsPopup(jsonData, barCode,productId);
-
-            }
-          });
-        }
-
-
-      }
-    } on PlatformException {
-      barCode = 'Failed to get platform version.';
-    }
-  }
-
 
   Future<void> showProductDetailsPopup(
       Map<String, dynamic> productData,
@@ -287,7 +241,6 @@ class _CartScreenState extends State<CartScreen> {
                   builder: (BuildContext context) {
                     return BarcodePopupForm(
                       scannedBarcode: productData['barcode'],
-                      onScanAgain: scanBarcodeNormal,
                       isPresent: 1,
                     );
                   },
@@ -350,8 +303,8 @@ class _CartScreenState extends State<CartScreen> {
           margin: EdgeInsets.fromLTRB(0, 0, 9, 0), // Adjust the margin as needed
           child: InkWell(
             onTap: () async => {
-              scanBarcodeNormal()
-              // Navigator.pushNamed(context, BarcodeListScannerWithController.routeName).then((_) => setState(() {}))
+              // scanBarcodes()
+              Navigator.pushNamed(context, BarcodeListScannerWithController.routeName).then((_) => setState(() {}))
             },
             child: Transform.scale(
               scale: 1.5, // Adjust the scale factor as needed

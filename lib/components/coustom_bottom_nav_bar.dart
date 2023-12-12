@@ -52,23 +52,29 @@ class CustomBottomNavBar extends StatelessWidget {
                       ? kPrimaryColor
                       : inActiveIconColor,
                 ),
-                onPressed: () =>
-                    Navigator.pushNamed(context, HomeScreen.routeName),
+                onPressed: MenuState.home == selectedMenu
+                    ? null  // Disable button if it's already selected
+                    : () => Navigator.pushNamed(context, HomeScreen.routeName),
               ),
               IconButton(
                 icon: SvgPicture.asset("assets/icons/transaction.svg",
                   color: MenuState.favourite == selectedMenu
                       ? kPrimaryColor
-                      : inActiveIconColor,),
-                onPressed: () =>
-                    Navigator.pushNamed(context, HistoryScreen.routeName),
+                      : inActiveIconColor,
+                ),
+                onPressed: MenuState.favourite == selectedMenu
+                    ? null  // Disable button if it's already selected
+                    : () => Navigator.pushNamed(context, HistoryScreen.routeName),
               ),
               IconButton(
                 icon: SvgPicture.asset("assets/icons/Chat bubble Icon.svg",
                   color: MenuState.message == selectedMenu
                       ? kPrimaryColor
-                      : inActiveIconColor,),
-                onPressed: () {},
+                      : inActiveIconColor,
+                ),
+                onPressed: MenuState.message == selectedMenu
+                    ? null  // Disable button if it's already selected
+                    : () {},
               ),
               IconButton(
                 icon: SvgPicture.asset(
@@ -77,8 +83,9 @@ class CustomBottomNavBar extends StatelessWidget {
                       ? kPrimaryColor
                       : inActiveIconColor,
                 ),
-                onPressed: () =>
-                    Navigator.pushNamed(context, ProfileScreen.routeName),
+                onPressed: MenuState.profile == selectedMenu
+                    ? null  // Disable button if it's already selected
+                    : () => Navigator.pushNamed(context, ProfileScreen.routeName),
               ),
             ],
           )),
