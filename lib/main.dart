@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'The Flutter Way - Template',
+      title: 'hisaaab.com',
       theme: AppTheme.lightTheme(context),
       initialRoute: isAuthenticated ? WrapperScreen.routeName : SplashScreen.routeName,
       routes: routes,

@@ -152,9 +152,7 @@ class _ProductDataTableState extends State<ProductDataTable> {
   Widget build(BuildContext context) {
     var myColumns = [
       DataColumn(
-        label: Text(widget.groupBy == "name"
-            ? "Product Name"
-            : "Category Name",),
+        label: Text(widget.groupBy == "name" ? "Product Name" : "Category Name"),
         onSort: (columnIndex, sortAscending) {
           setState(() {
             _sortColumnIndex = columnIndex;
@@ -172,6 +170,7 @@ class _ProductDataTableState extends State<ProductDataTable> {
             _sortData('revenue');
           });
         },
+        numeric: true,
       ),
       DataColumn(
         label: Text('Units Sold'),
@@ -182,6 +181,7 @@ class _ProductDataTableState extends State<ProductDataTable> {
             _sortData('count');
           });
         },
+        numeric: true,
       ),
     ];
 
@@ -193,16 +193,28 @@ class _ProductDataTableState extends State<ProductDataTable> {
       ]);
     });
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: myColumns,
-        rows: myRows.toList(),
-        sortColumnIndex: _sortColumnIndex,
-        sortAscending: _sortAsc,
+    return Container(
+      color: Colors.white,
+      width: double.infinity,
+      // margin: EdgeInsets.symmetric(horizontal: 00.0),
+      child: Wrap(
+        alignment: WrapAlignment.start,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          DataTable(
+            columnSpacing: 10.0,
+            columns: myColumns,
+            rows: myRows.toList(),
+            sortColumnIndex: _sortColumnIndex,
+            sortAscending: _sortAsc,
+          ),
+        ],
       ),
     );
   }
+
+
+
 
   void _sortData(String column) {
     products.sort((a, b) {

@@ -130,83 +130,169 @@ class _BodyState extends State<Body> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: getProportionateScreenHeight(20)),
-            HomeHeader(rangeStart: widget.rangeStart, rangeEnd :widget.rangeEnd),
-            SizedBox(height: getProportionateScreenWidth(10)),
-            Row(
-              children: [
-                Expanded(
-                  child: DiscountBanner(
-                    value: '₹'+totalValue.toString() ,
-                    title: "Total Revenue",
+    return Container(
+      color: Color(0xFFFFFF), // Set the background color here
+      child: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              HomeHeader(rangeStart: widget.rangeStart, rangeEnd: widget.rangeEnd),
+              SizedBox(height: getProportionateScreenWidth(10)),
+              Row(
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(1)),
+                    child: DiscountBanner(
+                      values: [
+                        '₹' + totalValue.toString(),
+                        totalItems.toString(),
+                        totalTransactions.toString(),
+                      ],
+                      titles: [
+                        "Revenue",
+                        "Items Sold",
+                        "Transactions",
+                      ],
+                    ),
                   ),
+                  // Add other widgets in the Row as needed
+                ],
+              ),
+
+
+
+
+              // children: [
+                //   Expanded(
+                //     child: DiscountBanner(
+                //       value: totalTransactions.toString(),
+                //       title: "Total Transactions",
+                //     ),
+                //   ),
+                //   // Expanded(
+                //   //   child: DiscountBanner(
+                //   //     value: averageTransactionValue.toString(),
+                //   //     title: "Avg Transaction Value",
+                //   //   ),
+                //   // ),
+                // ],
+
+              SizedBox(height: getProportionateScreenWidth(15)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(10)),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white, // Set the background color here
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5.0),
+                  topRight: Radius.circular(5.0),
+                  bottomLeft: Radius.circular(5.0),
+                  bottomRight: Radius.circular(5.0),
                 ),
-                Expanded(
-                  child: DiscountBanner(
-                    value: totalItems.toString(),
-                    title: "Total Items Sold",
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 2), // Adjust the offset as needed
                   ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: DiscountBanner(
-                    value: totalTransactions.toString() ,
-                    title: "Total Transactions",
+                ],
+              ),
+              padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+              child: Column(
+                children: [
+                  SectionTitle(
+                    title: "Top Revenue Products",
+                    cta: "See All",
+                    press: () {
+                      Navigator.pushNamed(
+                        context,
+                        AllProductsTable.routeName,
+                        arguments: {
+                          'rangeStart': widget.rangeStart,
+                          'rangeEnd': widget.rangeEnd,
+                          'numberOfProducts': -1,
+                          'groupBy': "name",
+                          'appbarText': 'All Products Table',
+                          'productDetails': productDetails
+                        },
+                      );
+                    },
                   ),
-                ),
-                Expanded(
-                  child: DiscountBanner(
-                    value: averageTransactionValue.toString(),
-                    title: "Avg Transaction Value",
+                  SizedBox(height: getProportionateScreenWidth(10)),
+                  ProductDataTable(
+                    rangeStart: widget.rangeStart,
+                    rangeEnd: widget.rangeEnd,
+                    numberOfProducts: 5,
+                    groupBy: "name",
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: getProportionateScreenWidth(15)),
-            Padding(
-              padding:
-              EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
-              child: SectionTitle(
-                title: "Top Revenue Products",
-                cta: "See All Products",
-                press: () {
-                  Navigator.pushNamed(context, AllProductsTable.routeName,   arguments: {'rangeStart': widget.rangeStart, 'rangeEnd':  widget.rangeEnd,'numberOfProducts':-1,'groupBy': "name",'appbarText': 'All Products Table','productDetails':productDetails});
-                },
+                ],
               ),
             ),
-            SizedBox(height: getProportionateScreenWidth(10)),
-            ProductDataTable(rangeStart: widget.rangeStart, rangeEnd :widget.rangeEnd, numberOfProducts: 5, groupBy: "name"),
-            SizedBox(height: getProportionateScreenWidth(15)),
-            Padding(
-              padding:
-              EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
-              child: SectionTitle(
-                title: "Category Wise Performance",
-                cta: "See All",
-                press: () {
-                  Navigator.pushNamed(context, AllProductsTable.routeName,   arguments: {'rangeStart': widget.rangeStart, 'rangeEnd':  widget.rangeEnd,'numberOfProducts':-1,'groupBy': "categoryId",'appbarText': 'All Categories Table','productDetails':productDetails});
-                },
+          ),
+
+
+          SizedBox(height: getProportionateScreenWidth(15)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(10)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Set the background color here
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5.0),
+                      topRight: Radius.circular(5.0),
+                      bottomLeft: Radius.circular(5.0),
+                      bottomRight: Radius.circular(5.0),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: Offset(0, 2), // Adjust the offset as needed
+                      ),
+                    ],
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  child: Column(
+                    children: [
+                      SectionTitle(
+                        title: "Category Wise Performance",
+                        cta: "See All",
+                        press: () {
+                          Navigator.pushNamed(
+                            context,
+                            AllProductsTable.routeName,
+                            arguments: {
+                              'rangeStart': widget.rangeStart,
+                              'rangeEnd': widget.rangeEnd,
+                              'numberOfProducts': -1,
+                              'groupBy': "categoryId",
+                              'appbarText': 'All Categories Table',
+                              'productDetails': productDetails
+                            },
+                          );
+                        },
+                      ),
+                      SizedBox(height: getProportionateScreenWidth(10)),
+                      ProductDataTable(
+                        rangeStart: widget.rangeStart,
+                        rangeEnd: widget.rangeEnd,
+                        numberOfProducts: 5,
+                        groupBy: "name",
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: getProportionateScreenWidth(10)),
-            ProductDataTable(rangeStart: widget.rangeStart, rangeEnd :widget.rangeEnd, numberOfProducts: 5,  groupBy: "categoryId"),
-            // Categories(),
-            // SpecialOffers(),
-            // SizedBox(height: getProportionateScreenWidth(30)),
-            // PopularProducts(),
-            SizedBox(height: getProportionateScreenWidth(30)),
-          ],
+              SizedBox(height: getProportionateScreenWidth(30)),
+            ],
+          ),
         ),
       ),
     );
   }
+
 }
 
 class ProductData  {

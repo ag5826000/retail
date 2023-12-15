@@ -98,7 +98,7 @@ class CartCard extends StatelessWidget {
                             margin: EdgeInsets.fromLTRB(0, 0, 5, 0),
                             padding: EdgeInsets.all(5),
                             decoration: BoxDecoration(
-                              color: Colors.red,
+                              color: Colors.red[900],
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
