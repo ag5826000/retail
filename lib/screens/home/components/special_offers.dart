@@ -17,6 +17,7 @@ class SpecialOffers extends StatelessWidget {
               EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
           child: SectionTitle(
             title: "Special for you",
+            cta: "See All Categories",
             press: () {},
           ),
         ),

@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shop_app/components/custom_surfix_icon.dart';
 import 'package:shop_app/components/default_button.dart';
 import 'package:shop_app/components/form_error.dart';
+import 'package:shop_app/screens/home/home_screen.dart';
 import 'package:shop_app/screens/otp/otp_screen.dart';
 
 import '../../../constants.dart';
@@ -15,10 +18,13 @@ class CompleteProfileForm extends StatefulWidget {
 class _CompleteProfileFormState extends State<CompleteProfileForm> {
   final _formKey = GlobalKey<FormState>();
   final List<String?> errors = [];
-  String? firstName;
-  String? lastName;
-  String? phoneNumber;
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+  String? businessName;
+  String? ownerName;
+  String? aadharNumber;
   String? address;
+  String? pincode;
 
   void addError({String? error}) {
     if (!errors.contains(error))
@@ -34,26 +40,50 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
       });
   }
 
+  bool isValidPincode(String pincode) {
+    return RegExp(r"^\d{6}$").hasMatch(pincode);
+  }
+
+  bool isValidAadhar(String aadhar) {
+    return RegExp(r"^\d{12}$").hasMatch(aadhar);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
       child: Column(
         children: [
-          buildFirstNameFormField(),
+          buildOwnerNameFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
-          buildLastNameFormField(),
+          buildBusinessNameFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
-          buildPhoneNumberFormField(),
+          buildAadharNumberFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
           buildAddressFormField(),
+          SizedBox(height: getProportionateScreenHeight(30)),
+          buildPincodeFormField(),
+          SizedBox(height: getProportionateScreenHeight(30)),
           FormError(errors: errors),
           SizedBox(height: getProportionateScreenHeight(40)),
           DefaultButton(
-            text: "continue",
-            press: () {
+            text: "Continue",
+            press: () async {
               if (_formKey.currentState!.validate()) {
-                Navigator.pushNamed(context, OtpScreen.routeName);
+                final User? user = _auth.currentUser;
+
+                if (user != null) {
+                  // Add user details to Firestore
+                  await _firestore.collection('users').doc(user.uid).set({
+                    'businessName': businessName,
+                    'name': ownerName,
+                    'aadharNumber': aadharNumber,
+                    'address': address,
+                    'pincode': pincode,
+                  });
+
+                  Navigator.pushReplacementNamed(context, HomeScreen.routeName);
+                }
               }
             },
           ),
@@ -62,12 +92,59 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
     );
   }
 
+  TextFormField buildPincodeFormField() {
+    return TextFormField(
+      keyboardType: TextInputType.number,
+      onSaved: (newValue) {
+        setState(() {
+          pincode=newValue;
+        });
+      },
+      onChanged: (value) {
+        if (value.isNotEmpty) {
+          removeError(error: "Please Enter your Pincode");
+          if (isValidPincode(value)) {
+            // Remove the Aadhar format error if it was displayed
+            removeError(error: "Please Enter a valid 6-digit Pincode");
+            setState(() {
+              pincode=value;
+            });
+          }
+        }
+        return null;
+      },
+      validator: (value) {
+        if (value!.isEmpty) {
+          addError(error: "Please Enter your Pincode");
+          return "";
+        } else if (!isValidPincode(value)) {
+          addError(error: "Please Enter a valid 6-digit Pincode");
+          return "";
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        labelText: "Pincode",
+        hintText: "Enter your pincode",
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Location point.svg"),
+      ),
+    );
+  }
+
   TextFormField buildAddressFormField() {
     return TextFormField(
-      onSaved: (newValue) => address = newValue,
+      onSaved: (newValue) {
+        setState(() {
+          address=newValue;
+        });
+      },
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kAddressNullError);
+          setState(() {
+            address=value;
+          });
         }
         return null;
       },
@@ -80,81 +157,113 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
       },
       decoration: InputDecoration(
         labelText: "Address",
-        hintText: "Enter your phone address",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
+        hintText: "Enter your address",
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon:
-            CustomSurffixIcon(svgIcon: "assets/icons/Location point.svg"),
+        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Location point.svg"),
       ),
     );
   }
 
-  TextFormField buildPhoneNumberFormField() {
+  TextFormField buildAadharNumberFormField() {
     return TextFormField(
-      keyboardType: TextInputType.phone,
-      onSaved: (newValue) => phoneNumber = newValue,
+      keyboardType: TextInputType.number,
+      onSaved: (newValue) {
+        setState(() {
+          aadharNumber=newValue;
+        });
+      },
       onChanged: (value) {
         if (value.isNotEmpty) {
-          removeError(error: kPhoneNumberNullError);
+          removeError(error: "Please Enter your Aadhar Number");
+          if (isValidAadhar(value)) {
+            // Remove the Aadhar format error if it was displayed
+            setState(() {
+              aadharNumber=value;
+            });
+            removeError(error: "Please Enter a valid 12-digit Aadhar Number");
+          }
         }
         return null;
       },
       validator: (value) {
         if (value!.isEmpty) {
-          addError(error: kPhoneNumberNullError);
+          addError(error: "Please Enter your Aadhar Number");
+          return "";
+        } else if (!isValidAadhar(value)) {
+          addError(error: "Please Enter a valid 12-digit Aadhar Number");
           return "";
         }
         return null;
       },
       decoration: InputDecoration(
-        labelText: "Phone Number",
-        hintText: "Enter your phone number",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
+        labelText: "Aadhar Number",
+        hintText: "Enter your Aadhar number",
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Phone.svg"),
+        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/ID.svg"),
       ),
     );
   }
 
-  TextFormField buildLastNameFormField() {
+  TextFormField buildOwnerNameFormField() {
     return TextFormField(
-      onSaved: (newValue) => lastName = newValue,
+      onSaved: (newValue) {
+        setState(() {
+          ownerName=newValue;
+        });
+      },
+      onChanged: (value) {
+        if (value.isNotEmpty) {
+          removeError(error: "Please Enter your Name");
+          setState(() {
+            ownerName=value;
+          });
+        }
+        return null;
+      },
+      validator: (value) {
+        if (value!.isEmpty) {
+          addError(error: "Please Enter your Name");
+          return "";
+        }
+        return null;
+      },
       decoration: InputDecoration(
-        labelText: "Last Name",
-        hintText: "Enter your last name",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
+        labelText: "Name",
+        hintText: "Enter Business owner's name",
         floatingLabelBehavior: FloatingLabelBehavior.always,
         suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/User.svg"),
       ),
     );
   }
 
-  TextFormField buildFirstNameFormField() {
+  TextFormField buildBusinessNameFormField() {
     return TextFormField(
-      onSaved: (newValue) => firstName = newValue,
+      onSaved: (newValue) {
+        setState(() {
+          businessName=newValue;
+        });
+      },
       onChanged: (value) {
         if (value.isNotEmpty) {
-          removeError(error: kNamelNullError);
+          removeError(error: "Please Enter Business Name");
+          setState(() {
+            businessName=value;
+          });
         }
         return null;
       },
       validator: (value) {
         if (value!.isEmpty) {
-          addError(error: kNamelNullError);
+          addError(error: "Please Enter Business Name");
           return "";
         }
         return null;
       },
       decoration: InputDecoration(
-        labelText: "First Name",
-        hintText: "Enter your first name",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
+        labelText: "Business Name",
+        hintText: "Enter the business name",
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/User.svg"),
+        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Shop Icon Black.svg"),
       ),
     );
   }

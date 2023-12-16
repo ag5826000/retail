@@ -3,12 +3,98 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shop_app/components/default_button.dart';
 
 import '../../../constants.dart';
+import '../../../models/Cart.dart';
 import '../../../size_config.dart';
 
-class CheckoutCard extends StatelessWidget {
+typedef CheckoutFunction = void Function(String paymentMethod);
+
+class CheckoutCard extends StatefulWidget {
+  final double cartTotal;
+  final CheckoutFunction onPressCheckout;
   const CheckoutCard({
     Key? key,
+    required this.cartTotal,
+    required this.onPressCheckout,
   }) : super(key: key);
+
+  @override
+  State<CheckoutCard> createState() => _CheckoutCardState();
+}
+
+class _CheckoutCardState extends State<CheckoutCard> {
+
+  void _showCheckoutOptions() {
+    if (widget.cartTotal <= 0) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('No Items in Cart'),
+            content: Text('Please add items to the cart before checkout.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Select Payment Method'),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.payment),
+                          color: Colors.blue, // Color for the payment icon
+                          onPressed: () {
+                            // Handle checkout with UPI
+                            widget.onPressCheckout("UPI");
+                            Navigator.pop(context); // Close the modal sheet
+                          },
+                        ),
+                        Text('Checkout with UPI',
+                            style: TextStyle(color: Colors.blue)),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.money),
+                          color: Colors.green, // Color for the money icon
+                          onPressed: () {
+                            // Handle checkout with cash
+                            widget.onPressCheckout("Cash");
+                            Navigator.pop(context); // Close the modal sheet
+                          },
+                        ),
+                        Text('Checkout with Cash',
+                            style: TextStyle(color: Colors.green)),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +154,7 @@ class CheckoutCard extends StatelessWidget {
                     text: "Total:\n",
                     children: [
                       TextSpan(
-                        text: "\$337.15",
+                        text: "₹${widget.cartTotal.toStringAsFixed(2)}",
                         style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ],
@@ -77,8 +163,8 @@ class CheckoutCard extends StatelessWidget {
                 SizedBox(
                   width: getProportionateScreenWidth(190),
                   child: DefaultButton(
-                    text: "Check Out",
-                    press: () {},
+                    text: "Checkout",
+                    press: _showCheckoutOptions,
                   ),
                 ),
               ],

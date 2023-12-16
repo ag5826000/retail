@@ -1,6 +1,11 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shop_app/screens/cart/cart_screen.dart';
+import 'package:shop_app/screens/cart/components/scanner.dart';
+import 'package:shop_app/screens/history/history_screen.dart';
 import 'package:shop_app/screens/home/home_screen.dart';
 import 'package:shop_app/screens/profile/profile_screen.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
@@ -18,26 +23,11 @@ class CustomBottomNavBar extends StatelessWidget {
   final MenuState selectedMenu;
 
 
-
-  Future<void> scanBarcode(BuildContext context) async {
-    var res = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SimpleBarcodeScannerPage(),
-        ));
-        final player = AudioPlayer();
-        await player.play(AssetSource('sound/beep.mp3'));
-        if (res is String) {
-          var result = res;
-          print(res);
-        }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final Color inActiveIconColor = Color(0xFFB6B6B6);
+    final Color inActiveIconColor = Colors.black;
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 14),
+      padding: EdgeInsets.symmetric(vertical: 1),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -47,52 +37,152 @@ class CustomBottomNavBar extends StatelessWidget {
             color: Color(0xFFDADADA).withOpacity(0.15),
           ),
         ],
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(40),
-          topRight: Radius.circular(40),
-        ),
+        // borderRadius: BorderRadius.only(
+        //   topLeft: Radius.circular(20),
+        //   topRight: Radius.circular(20),
+        // ),
       ),
       child: SafeArea(
-          top: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: SvgPicture.asset(
-                  "assets/icons/Shop Icon.svg",
-                  color: MenuState.home == selectedMenu
-                      ? kPrimaryColor
-                      : inActiveIconColor,
-                ),
-                onPressed: () =>
-                    Navigator.pushNamed(context, HomeScreen.routeName),
+        top: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, HomeScreen.routeName),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: SvgPicture.asset(
+                      "assets/icons/Shop Icon.svg",
+                      color: MenuState.home == selectedMenu
+                          ? kPrimaryColor
+                          : inActiveIconColor,
+                    ),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, HomeScreen.routeName),
+                  ),
+                  Transform.translate(
+                    offset: Offset(0.0, -8.0), // Adjust the offset as needed
+                    child: GestureDetector(
+                      onTap: () =>
+                          Navigator.pushNamed(context, HomeScreen.routeName),
+                      child: Text(
+                        "Home",
+                        style: TextStyle(
+                          color: MenuState.home == selectedMenu
+                              ? kPrimaryColor
+                              : inActiveIconColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              IconButton(
-                icon: SvgPicture.asset("assets/icons/Heart Icon.svg",
-                  color: MenuState.favourite == selectedMenu
-                      ? kPrimaryColor
-                      : inActiveIconColor,),
-                onPressed: () => scanBarcode(context),
+            ),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, HomeScreen.routeName),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: SvgPicture.asset(
+                      "assets/icons/transaction.svg",
+                      color: MenuState.favourite == selectedMenu
+                          ? kPrimaryColor
+                          : inActiveIconColor,
+                    ),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, HistoryScreen.routeName),
+                  ),
+                  Transform.translate(
+                    offset: Offset(0.0, -8.0), // Adjust the offset as needed
+                    child: GestureDetector(
+                      onTap: () =>
+                          Navigator.pushNamed(context, HistoryScreen.routeName),
+                      child: Text(
+                        "Transactions",
+                        style: TextStyle(
+                          color: MenuState.favourite == selectedMenu
+                              ? kPrimaryColor
+                              : inActiveIconColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              IconButton(
-                icon: SvgPicture.asset("assets/icons/Chat bubble Icon.svg",
-                  color: MenuState.message == selectedMenu
-                      ? kPrimaryColor
-                      : inActiveIconColor,),
-                onPressed: () {},
+            ),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, HomeScreen.routeName),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: SvgPicture.asset(
+                      "assets/icons/barcode.svg",
+                      color: MenuState.message == selectedMenu
+                          ? kPrimaryColor
+                          : inActiveIconColor,
+                    ),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, CartScreen.routeName),
+                  ),
+                  Transform.translate(
+                    offset: Offset(0.0, -8.0), // Adjust the offset as needed
+                    child: GestureDetector(
+                      onTap: () =>
+                          Navigator.pushNamed(context, CartScreen.routeName),
+                      child: Text(
+                        "Scanner",
+                        style: TextStyle(
+                          color: MenuState.message == selectedMenu
+                              ? kPrimaryColor
+                              : inActiveIconColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              IconButton(
-                icon: SvgPicture.asset(
-                  "assets/icons/User Icon.svg",
-                  color: MenuState.profile == selectedMenu
-                      ? kPrimaryColor
-                      : inActiveIconColor,
-                ),
-                onPressed: () =>
-                    Navigator.pushNamed(context, ProfileScreen.routeName),
+            ),
+
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, HomeScreen.routeName),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: SvgPicture.asset(
+                      "assets/icons/User Icon.svg",
+                      color: MenuState.profile == selectedMenu
+                          ? kPrimaryColor
+                          : inActiveIconColor,
+                    ),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, ProfileScreen.routeName),
+                  ),
+                  Transform.translate(
+                    offset: Offset(0.0, -8.0), // Adjust the offset as needed
+                    child: GestureDetector(
+                      onTap: () =>
+                          Navigator.pushNamed(context, ProfileScreen.routeName),
+                      child: Text(
+                        "Settings",
+                        style: TextStyle(
+                          color: MenuState.profile == selectedMenu
+                              ? kPrimaryColor
+                              : inActiveIconColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

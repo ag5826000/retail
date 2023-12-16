@@ -1,40 +1,53 @@
 import 'package:flutter/material.dart';
-
 import '../../../size_config.dart';
 
 class DiscountBanner extends StatelessWidget {
-  const DiscountBanner({
-    Key? key,
-  }) : super(key: key);
+  final List<String?> values;
+  final List<String?> titles;
+
+  DiscountBanner({Key? key, required this.values, required this.titles})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // height: 90,
-      width: double.infinity,
-      margin: EdgeInsets.all(getProportionateScreenWidth(20)),
-      padding: EdgeInsets.symmetric(
-        horizontal: getProportionateScreenWidth(20),
-        vertical: getProportionateScreenWidth(15),
-      ),
+      margin: EdgeInsets.all(getProportionateScreenWidth(7)),
+      padding: EdgeInsets.all(getProportionateScreenWidth(25)),
       decoration: BoxDecoration(
-        color: Color(0xFF4A3298),
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.blue[900],
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Text.rich(
-        TextSpan(
-          style: TextStyle(color: Colors.white),
-          children: [
-            TextSpan(text: "A Summer Surpise\n"),
-            TextSpan(
-              text: "Cashback 20%",
-              style: TextStyle(
-                fontSize: getProportionateScreenWidth(24),
-                fontWeight: FontWeight.bold,
-              ),
+      child: Row(
+        children: List.generate(
+          values.length,
+              (index) => Container(
+            width: MediaQuery.of(context).size.width /3.7,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  titles[index]!,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: getProportionateScreenWidth(12),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: getProportionateScreenWidth(10)),
+                Text(
+                  values[index]!,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: getProportionateScreenWidth(24),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+
             ),
-          ],
-        ),
+          ),
+        )
+
       ),
     );
   }

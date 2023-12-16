@@ -1,9 +1,26 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../splash/splash_screen.dart';
 import 'profile_menu.dart';
 import 'profile_pic.dart';
 
 class Body extends StatelessWidget {
+
+  void _signOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        SplashScreen.routeName, // Replace with your login or splash screen route
+            (route) => false, // This removes all routes from the stack
+      );
+    } catch (e) {
+      // Handle sign-out errors here, if any
+      print("Error signing out: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -35,7 +52,9 @@ class Body extends StatelessWidget {
           ProfileMenu(
             text: "Log Out",
             icon: "assets/icons/Log out.svg",
-            press: () {},
+            press: () {
+              _signOut(context);
+            },
           ),
         ],
       ),

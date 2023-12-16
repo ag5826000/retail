@@ -6,44 +6,73 @@ import '../../../size_config.dart';
 import 'cart_card.dart';
 
 class Body extends StatefulWidget {
+  final VoidCallback updateTotal;
+  final Function showProductDetailsPopup;
+  Body({required this.updateTotal, required this.showProductDetailsPopup});
   @override
   _BodyState createState() => _BodyState();
 }
 
 class _BodyState extends State<Body> {
+
+  void onRemove(Cart cart) {
+    setState(() {
+      if (cart.numOfItem > 1) {
+        cart.numOfItem--;
+      } else {
+        // Remove the item from the list if the quantity is 1
+        demoCartsMap.remove(cart.item.barcode);
+      }
+      widget.updateTotal();
+    });
+  }
+
+  void onAdd(Cart cart) {
+    setState(() {
+      cart.numOfItem++;
+      widget.updateTotal();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
-      child: ListView.builder(
-        itemCount: demoCarts.length,
-        itemBuilder: (context, index) => Padding(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          child: Dismissible(
-            key: Key(demoCarts[index].product.id.toString()),
-            direction: DismissDirection.endToStart,
-            onDismissed: (direction) {
-              setState(() {
-                demoCarts.removeAt(index);
-              });
-            },
-            background: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                color: Color(0xFFFFE6E6),
-                borderRadius: BorderRadius.circular(15),
+      padding: EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
+      child: ListView(
+        children: demoCartsMap.values.map((cart) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Dismissible(
+              key: Key(cart.item.barcode),
+              direction: DismissDirection.endToStart,
+              onDismissed: (direction) {
+                setState(() {
+                  demoCartsMap.remove(cart.item.barcode);
+                  widget.updateTotal();
+                });
+              },
+              background: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFFE6E6),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  children: [
+                    Spacer(),
+                    SvgPicture.asset("assets/icons/Trash.svg"),
+                  ],
+                ),
               ),
-              child: Row(
-                children: [
-                  Spacer(),
-                  SvgPicture.asset("assets/icons/Trash.svg"),
-                ],
+              child: CartCard(
+                cart: cart,
+                onRemove: () => onRemove(cart),
+                onAdd: () => onAdd(cart),
+                showProductDetailsPopup: widget.showProductDetailsPopup,
               ),
             ),
-            child: CartCard(cart: demoCarts[index]),
-          ),
-        ),
+          );
+        }).toList(),
       ),
     );
   }
