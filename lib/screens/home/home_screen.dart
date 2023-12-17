@@ -44,17 +44,17 @@ class HomeScreen extends StatelessWidget {
       body: Body(rangeStart: rangeStart,
         rangeEnd: rangeEnd),
       bottomNavigationBar: CustomBottomNavBar(selectedMenu: MenuState.home),
-      floatingActionButton: FloatingActionButton(
-        elevation: 7,
-        backgroundColor: Colors.orange,
-        onPressed: () {
-          Navigator.pushNamed(context, CartScreen.routeName);
-        },
-        child: Icon(
-          Icons.add,
-          size: 36,// Adjust the icon size
-        ),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   elevation: 7,
+      //   backgroundColor: Colors.orange,
+      //   onPressed: () {
+      //     Navigator.pushNamed(context, CartScreen.routeName);
+      //   },
+      //   child: Icon(
+      //     Icons.add,
+      //     size: 36,// Adjust the icon size
+      //   ),
+      // ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

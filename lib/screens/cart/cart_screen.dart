@@ -319,6 +319,18 @@ class _CartScreenState extends State<CartScreen> {
       appBar: buildAppBar(context),
       body: Body(updateTotal: updateTotal,showProductDetailsPopup: showProductDetailsPopup),
       bottomNavigationBar: CheckoutCard(cartTotal: cartTotal,onPressCheckout: onPressCheckout,),
+      floatingActionButton: FloatingActionButton(
+        elevation: 7,
+        backgroundColor: Color(0xFFFF7643),
+        onPressed: () {
+          Navigator.pushNamed(context, BarcodeListScannerWithController.routeName).then((_) => setState(() {}));
+        },
+        child: Icon(
+          Icons.qr_code,
+          size: 36,// Adjust the icon size
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -327,7 +339,7 @@ class _CartScreenState extends State<CartScreen> {
       title: Column(
         children: [
           Text(
-            "Your Cart",
+            "New Bill",
             style: TextStyle(color: Colors.black),
           ),
           Text(
