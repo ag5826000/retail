@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shop_app/models/Cart.dart';
 import 'package:shop_app/screens/cart/components/scanner.dart';
 import 'package:shop_app/screens/login_success/login_success_screen.dart';
@@ -78,10 +80,21 @@ class _CartScreenState extends State<CartScreen> {
       });
 
       // Navigate to the next screen (LoginSuccessScreen) or perform any other actions
-      Navigator.pushReplacementNamed(context, LoginSuccessScreen.routeName);
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        text: 'Transaction Completed Successfully!',
+      );
+      //Navigator.pushReplacementNamed(context, LoginSuccessScreen.routeName);
     } catch (error) {
       // Cart data could not be saved to Firestore, handle the error as needed
       print('Error saving cart to Firestore: $error');
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Oops...',
+        text: 'Sorry, something went wrong',
+      );
       // You can display an error message or retry, depending on your use case
     }
   }
@@ -234,27 +247,27 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
             ),
-            TextButton(
-              onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return BarcodePopupForm(
-                      scannedBarcode: productData['barcode'],
-                      isPresent: 1,
-                    );
-                  },
-                );
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Update',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            // TextButton(
+            //   onPressed: () async {
+            //     await showDialog(
+            //       context: context,
+            //       builder: (BuildContext context) {
+            //         return BarcodePopupForm(
+            //           scannedBarcode: productData['barcode'],
+            //           isPresent: 1,
+            //         );
+            //       },
+            //     );
+            //     Navigator.of(context).pop();
+            //   },
+            //   child: Text(
+            //     'Update',
+            //     style: TextStyle(
+            //       fontSize: 16.0,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            // ),
           ],
         );
       },

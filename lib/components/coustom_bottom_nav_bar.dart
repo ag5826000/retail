@@ -48,7 +48,9 @@ class CustomBottomNavBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             GestureDetector(
-              onTap: () => Navigator.pushNamed(context, HomeScreen.routeName),
+              onTap: MenuState.home == selectedMenu
+                  ? null
+                  : () => Navigator.pushNamed(context, HomeScreen.routeName),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -59,14 +61,16 @@ class CustomBottomNavBar extends StatelessWidget {
                           ? kPrimaryColor
                           : inActiveIconColor,
                     ),
-                    onPressed: () =>
-                        Navigator.pushNamed(context, HomeScreen.routeName),
+                    onPressed: MenuState.home == selectedMenu
+                        ? null
+                        : () => Navigator.pushNamed(context, HomeScreen.routeName),
                   ),
                   Transform.translate(
                     offset: Offset(0.0, -8.0), // Adjust the offset as needed
                     child: GestureDetector(
-                      onTap: () =>
-                          Navigator.pushNamed(context, HomeScreen.routeName),
+                      onTap: MenuState.home == selectedMenu
+                          ? null
+                          : () => Navigator.pushNamed(context, HomeScreen.routeName),
                       child: Text(
                         "Home",
                         style: TextStyle(
@@ -81,7 +85,9 @@ class CustomBottomNavBar extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () => Navigator.pushNamed(context, HomeScreen.routeName),
+              onTap: MenuState.favourite == selectedMenu
+                  ? null
+                  : () => Navigator.pushNamed(context, HistoryScreen.routeName),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -92,14 +98,16 @@ class CustomBottomNavBar extends StatelessWidget {
                           ? kPrimaryColor
                           : inActiveIconColor,
                     ),
-                    onPressed: () =>
-                        Navigator.pushNamed(context, HistoryScreen.routeName),
+                    onPressed: MenuState.favourite == selectedMenu
+                        ? null
+                        : () => Navigator.pushNamed(context, HistoryScreen.routeName),
                   ),
                   Transform.translate(
                     offset: Offset(0.0, -8.0), // Adjust the offset as needed
                     child: GestureDetector(
-                      onTap: () =>
-                          Navigator.pushNamed(context, HistoryScreen.routeName),
+                      onTap: MenuState.favourite == selectedMenu
+                          ? null
+                          : () => Navigator.pushNamed(context, HistoryScreen.routeName),
                       child: Text(
                         "Transactions",
                         style: TextStyle(
@@ -114,7 +122,7 @@ class CustomBottomNavBar extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () => Navigator.pushNamed(context, HomeScreen.routeName),
+              onTap:  MenuState.message == selectedMenu ? null:() => Navigator.pushNamed(context, CartScreen.routeName),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -125,14 +133,12 @@ class CustomBottomNavBar extends StatelessWidget {
                           ? kPrimaryColor
                           : inActiveIconColor,
                     ),
-                    onPressed: () =>
-                        Navigator.pushNamed(context, CartScreen.routeName),
+                    onPressed:  MenuState.message == selectedMenu ? null:() => Navigator.pushNamed(context, CartScreen.routeName),
                   ),
                   Transform.translate(
                     offset: Offset(0.0, -8.0), // Adjust the offset as needed
                     child: GestureDetector(
-                      onTap: () =>
-                          Navigator.pushNamed(context, CartScreen.routeName),
+                      onTap:  MenuState.message == selectedMenu ? null:() => Navigator.pushNamed(context, CartScreen.routeName),
                       child: Text(
                         "Cart",
                         style: TextStyle(
@@ -148,7 +154,9 @@ class CustomBottomNavBar extends StatelessWidget {
             ),
 
             GestureDetector(
-              onTap: () => Navigator.pushNamed(context, HomeScreen.routeName),
+              onTap: MenuState.profile == selectedMenu
+                  ? null
+                  : () => Navigator.pushNamed(context, ProfileScreen.routeName),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -159,16 +167,18 @@ class CustomBottomNavBar extends StatelessWidget {
                           ? kPrimaryColor
                           : inActiveIconColor,
                     ),
-                    onPressed: () =>
-                        Navigator.pushNamed(context, ProfileScreen.routeName),
+                    onPressed: MenuState.profile == selectedMenu
+                        ? null
+                        : () => Navigator.pushNamed(context, ProfileScreen.routeName),
                   ),
                   Transform.translate(
                     offset: Offset(0.0, -8.0), // Adjust the offset as needed
                     child: GestureDetector(
-                      onTap: () =>
-                          Navigator.pushNamed(context, ProfileScreen.routeName),
+                      onTap: MenuState.profile == selectedMenu
+                          ? null
+                          : () => Navigator.pushNamed(context, ProfileScreen.routeName),
                       child: Text(
-                        "Settings",
+                        "Profile",
                         style: TextStyle(
                           color: MenuState.profile == selectedMenu
                               ? kPrimaryColor

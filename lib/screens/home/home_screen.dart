@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shop_app/components/coustom_bottom_nav_bar.dart';
 import 'package:shop_app/enums.dart';
 
 import '../../size_config.dart';
+import '../cart/cart_screen.dart';
+import '../login_success/login_success_screen.dart';
 import 'components/body.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -40,16 +44,17 @@ class HomeScreen extends StatelessWidget {
       body: Body(rangeStart: rangeStart,
         rangeEnd: rangeEnd),
       bottomNavigationBar: CustomBottomNavBar(selectedMenu: MenuState.home),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     // Add your code to open the QR code scanner here.
-      //     // You can use Navigator.push to navigate to the scanner screen.
-      //   },
-      //   child: Icon(
-      //     Icons.qr_code,
-      //     size: 36,// Adjust the icon size
-      //   ),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 7,
+        backgroundColor: Colors.orange,
+        onPressed: () {
+          Navigator.pushNamed(context, CartScreen.routeName);
+        },
+        child: Icon(
+          Icons.add,
+          size: 36,// Adjust the icon size
+        ),
+      ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

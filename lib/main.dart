@@ -2,8 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shop_app/routes.dart';
 import 'package:shop_app/screens/home/home_screen.dart';
+import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
+import 'package:shop_app/screens/sign_up/sign_up_screen.dart';
 import 'package:shop_app/screens/splash/splash_screen.dart';
 import 'package:shop_app/screens/wrapper/wrapper.dart';
+import 'package:shop_app/size_config.dart';
 import 'package:shop_app/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -24,12 +27,11 @@ class MyApp extends StatelessWidget {
   MyApp({required this.isAuthenticated});
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'hisaaab.com',
       theme: AppTheme.lightTheme(context),
-      initialRoute: isAuthenticated ? WrapperScreen.routeName : SplashScreen.routeName,
+      initialRoute: isAuthenticated ? WrapperScreen.routeName : SignUpScreen.routeName,
       routes: routes,
     );
   }

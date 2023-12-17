@@ -60,6 +60,7 @@ class _CheckoutCardState extends State<CheckoutCard> {
                       onTap: () {
                         // Handle checkout with UPI and close the modal sheet
                         widget.onPressCheckout("UPI");
+                        Navigator.pop(context);
                       },
                       child: Column(
                         children: [
@@ -80,6 +81,7 @@ class _CheckoutCardState extends State<CheckoutCard> {
                       onTap: () {
                         // Handle checkout with cash and close the modal sheet
                         widget.onPressCheckout("Cash");
+                        Navigator.pop(context);
                       },
                       child: Column(
                         children: [

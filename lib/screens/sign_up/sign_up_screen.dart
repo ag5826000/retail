@@ -9,9 +9,10 @@ class SignUpScreen extends StatelessWidget {
   static String routeName = "/sign_up";
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Sign Up/Login"),
+        // title: Text("Sign Up/Login"),
       ),
       body: SafeArea(
         child: SizedBox(
@@ -23,12 +24,13 @@ class SignUpScreen extends StatelessWidget {
               child: Column(
                 children: [
                   SizedBox(height: 16),
-                  Text("Register / Login", style: headingStyle),
+                  Text("Welcome Saaab!", style: headingStyle),
+                  SizedBox(height: 16),
                   Text(
-                    "Enter your Phone Number",
+                    "Enter your Phone Number to Login/Signup",
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: SizeConfig.screenHeight * 0.08),
+                  SizedBox(height: SizeConfig.screenHeight * 0.07),
                   SignUpForm(),
                   SizedBox(height: SizeConfig.screenHeight * 0.08),
                   // Row(

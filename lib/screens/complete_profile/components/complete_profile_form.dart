@@ -54,14 +54,14 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
       key: _formKey,
       child: Column(
         children: [
-          buildOwnerNameFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
+          // buildOwnerNameFormField(),
+          // SizedBox(height: getProportionateScreenHeight(30)),
           buildBusinessNameFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
-          buildAadharNumberFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
-          buildAddressFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
+          // buildAadharNumberFormField(),
+          // SizedBox(height: getProportionateScreenHeight(30)),
+          // buildAddressFormField(),
+          // SizedBox(height: getProportionateScreenHeight(30)),
           buildPincodeFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
           FormError(errors: errors),
@@ -76,9 +76,9 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
                   // Add user details to Firestore
                   await _firestore.collection('users').doc(user.uid).set({
                     'businessName': businessName,
-                    'name': ownerName,
-                    'aadharNumber': aadharNumber,
-                    'address': address,
+                    //'name': ownerName,
+                    //'aadharNumber': aadharNumber,
+                    //'address': address,
                     'pincode': pincode,
                   });
 

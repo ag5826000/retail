@@ -31,13 +31,13 @@ class _HomeHeaderState extends State<HomeHeader> {
         height: getProportionateScreenHeight(80),
         color: Colors.white,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Add your logo here
-            Image.asset(
-              'assets/images/hisaaab_logo.png', // Adjust the path to your logo image
-              height: getProportionateScreenHeight(70), // Adjust the height as needed
-            ),
+            // Image.asset(
+            //   'assets/icons/playstore.png', // Adjust the path to your logo image
+            //   height: getProportionateScreenHeight(70), // Adjust the height as needed
+            // ),
 
             SizedBox(width: 4),
 

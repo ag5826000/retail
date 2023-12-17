@@ -231,27 +231,27 @@ class _BarcodeListScannerWithControllerState
                 ),
               ),
             ),
-            TextButton(
-              onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return BarcodePopupForm(
-                      scannedBarcode: productData['barcode'],
-                      isPresent: 1,
-                    );
-                  },
-                );
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Update',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            // TextButton(
+            //   onPressed: () async {
+            //     await showDialog(
+            //       context: context,
+            //       builder: (BuildContext context) {
+            //         return BarcodePopupForm(
+            //           scannedBarcode: productData['barcode'],
+            //           isPresent: 1,
+            //         );
+            //       },
+            //     );
+            //     Navigator.of(context).pop();
+            //   },
+            //   child: Text(
+            //     'Update',
+            //     style: TextStyle(
+            //       fontSize: 16.0,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            // ),
           ],
         );
       },

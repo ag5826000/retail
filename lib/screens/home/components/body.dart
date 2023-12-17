@@ -279,7 +279,7 @@ class _BodyState extends State<Body> {
                         rangeStart: widget.rangeStart,
                         rangeEnd: widget.rangeEnd,
                         numberOfProducts: 5,
-                        groupBy: "name",
+                        groupBy: "categoryId",
                       ),
                     ],
                   ),

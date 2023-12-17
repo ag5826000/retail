@@ -59,11 +59,11 @@ class _HistoryHeaderState extends State<HistoryHeader> {
                 ),
               ),
             ),
-          SizedBox(width: 10),
-          IconBtnWithCounter(
-            svgSrc: "assets/icons/Cart Icon.svg",
-            press: () => Navigator.pushNamed(context, CartScreen.routeName),
-          ),
+          // SizedBox(width: 10),
+          // IconBtnWithCounter(
+          //   svgSrc: "assets/icons/Cart Icon.svg",
+          //   press: () => Navigator.pushNamed(context, CartScreen.routeName),
+          // ),
           SizedBox(width: 10),
           IconBtnWithCounter(
             svgSrc: "assets/icons/calender.svg",

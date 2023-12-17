@@ -36,16 +36,17 @@ class _OtpFormState extends State<OtpForm> {
           SizedBox(
             width: getProportionateScreenWidth(300), // Adjust the width as needed
             child: TextFormField(
-              obscureText: true,
+              // obscureText: true,
               style: TextStyle(fontSize: 24),
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               maxLength: 6, // Set maximum length to 6
               decoration: otpInputDecoration,
               onChanged: (value) {
-                if (value.length <= 6) {
+                if (value.length == 6) {
                   setState(() {
                     otp = value;
+                    verifyOTP();
                   });
                 }
               },
