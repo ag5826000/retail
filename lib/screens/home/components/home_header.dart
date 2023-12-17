@@ -34,12 +34,12 @@ class _HomeHeaderState extends State<HomeHeader> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // Add your logo here
-            // Image.asset(
-            //   'assets/images/hisaaab_logo.png', // Adjust the path to your logo image
-            //   height: getProportionateScreenHeight(40), // Adjust the height as needed
-            // ),
+            Image.asset(
+              'assets/images/hisaaab_logo.png', // Adjust the path to your logo image
+              height: getProportionateScreenHeight(70), // Adjust the height as needed
+            ),
 
-            SizedBox(width: 8),
+            SizedBox(width: 4),
 
             GestureDetector(
               onTap: () {
@@ -54,25 +54,25 @@ class _HomeHeaderState extends State<HomeHeader> {
 
             if (widget.rangeStart != null && widget.rangeEnd != null)
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 10), // Add margin to separate widgets
+                margin: EdgeInsets.symmetric(horizontal: 1), // Add margin to separate widgets
                 child: Text(
                   '${_formattedDate(widget.rangeStart)} - ${_formattedDate(widget.rangeEnd)}',
                   style: TextStyle(fontSize: 16),
                 ),
               ),
 
-            SizedBox(width: 2),
+            // SizedBox(width: 2),
 
-            GestureDetector(
-              onTap: () {
-                // Handle cart icon press action
-                Navigator.pushNamed(context, CartScreen.routeName);
-              },
-              child: IconBtnWithCounter(
-                svgSrc: "assets/icons/Cart Icon.svg",
-                press: () => Navigator.pushNamed(context, CartScreen.routeName),
-              ),
-            ),
+            // GestureDetector(
+            //   onTap: () {
+            //     // Handle cart icon press action
+            //     Navigator.pushNamed(context, CartScreen.routeName);
+            //   },
+            //   child: IconBtnWithCounter(
+            //     svgSrc: "assets/icons/Cart Icon.svg",
+            //     press: () => Navigator.pushNamed(context, CartScreen.routeName),
+            //   ),
+            // ),
           ],
         ),
       ),

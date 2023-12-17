@@ -182,14 +182,12 @@ class _BarcodeListScannerWithControllerState
                       decoration: InputDecoration(
                         labelText: 'Enter Quantity Sold',
                         border: OutlineInputBorder(),
-                        hintText: 'Enter Quantity Sold',
+                        hintText: '1',
                       ),
                       keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Quantity is required';
-                        }
-                        return null;
+                      onSaved: (value) {
+                        // If the user didn't enter anything, set the default value as '1'
+                        // quantityController.text = value?.isEmpty ?? true ? '1' : value!;
                       },
                     ),
                   ],
@@ -203,7 +201,7 @@ class _BarcodeListScannerWithControllerState
                 if (_formKey.currentState!.validate()) {
                   int sellingPrice =
                       int.tryParse(sellingPriceController.text) ?? 0;
-                  int quantity = int.tryParse(quantityController.text) ?? 0;
+                  int quantity = int.tryParse(quantityController.text) ?? 1;
 
                   if (sellingPrice > 0 && quantity > 0) {
                     final newCartItem = CartItem(
@@ -297,6 +295,7 @@ class _BarcodeListScannerWithControllerState
 
           final notFound = <String, dynamic>{
             "barcode": barCode,
+            "lastUpdatedAt": FieldValue.serverTimestamp(),
           };
           db.collection("addInDB").add(notFound);
 
