@@ -177,22 +177,22 @@ class _CartScreenState extends State<CartScreen> {
                       },
                     ),
                     SizedBox(height: 16.0),
-                    TextFormField(
-                      controller: quantityController,
-                      decoration: InputDecoration(
-                        labelText: 'Enter Quantity Sold',
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter Quantity Sold',
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Quantity is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
+                TextFormField(
+                  controller: quantityController,
+                  decoration: InputDecoration(
+                    labelText: 'Enter Quantity Sold',
+                    border: OutlineInputBorder(),
+                    hintText: '1',
+                  ),
+                  keyboardType: TextInputType.number,
+                  // initialValue: '1', // Set the default value here
+                  onSaved: (value) {
+                    // If the user didn't enter anything, set the default value as '1'
+                    // quantityController.text = value?.isEmpty ?? true ? '1' : value!;
+                  },
+                ),
+
+                ],
                 ),
               ),
             ),
@@ -203,7 +203,7 @@ class _CartScreenState extends State<CartScreen> {
                 if (_formKey.currentState!.validate()) {
                   int sellingPrice =
                       int.tryParse(sellingPriceController.text) ?? 0;
-                  int quantity = int.tryParse(quantityController.text) ?? 0;
+                  int quantity = int.tryParse(quantityController.text) ?? 1;
 
                   if (sellingPrice > 0 && quantity > 0) {
                     final newCartItem = CartItem(
@@ -289,16 +289,23 @@ class _CartScreenState extends State<CartScreen> {
       actions: [
         Container(
           margin: EdgeInsets.fromLTRB(0, 18, 9, 0),
-          child: RichText(
-            text: TextSpan(
-              text: "Scan More",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18, // Adjust the font size as needed
+          child: GestureDetector(
+            onTap: () async => {
+              // scanBarcodes()
+              Navigator.pushNamed(context, BarcodeListScannerWithController.routeName).then((_) => setState(() {}))
+            },
+            child: RichText(
+              text: TextSpan(
+                text: "Scan More",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18, // Adjust the font size as needed
+                ),
               ),
             ),
           ),
         ),
+
         Container(
           margin: EdgeInsets.fromLTRB(0, 0, 9, 0), // Adjust the margin as needed
           child: InkWell(

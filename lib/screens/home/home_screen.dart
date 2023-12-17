@@ -29,14 +29,14 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
-        appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-          title:Image.asset(
-        'assets/images/hisaaab2_logo.jpeg', // Adjust the path to your logo image
-        height: getProportionateScreenHeight(80), // Adjust the height as needed
-          ),
-        ),
+        // appBar: AppBar(
+        // backgroundColor: Colors.white,
+        // elevation: 0,
+        //   title:Image.asset(
+        // 'assets/images/hisaaab2_logo.jpeg', // Adjust the path to your logo image
+        // height: getProportionateScreenHeight(80), // Adjust the height as needed
+        //   ),
+        // ),
       body: Body(rangeStart: rangeStart,
         rangeEnd: rangeEnd),
       bottomNavigationBar: CustomBottomNavBar(selectedMenu: MenuState.home),

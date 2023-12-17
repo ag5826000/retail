@@ -120,7 +120,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: SvgPicture.asset(
-                      "assets/icons/barcode.svg",
+                      "assets/icons/Cart Icon.svg",
                       color: MenuState.message == selectedMenu
                           ? kPrimaryColor
                           : inActiveIconColor,
@@ -134,7 +134,7 @@ class CustomBottomNavBar extends StatelessWidget {
                       onTap: () =>
                           Navigator.pushNamed(context, CartScreen.routeName),
                       child: Text(
-                        "Scanner",
+                        "Cart",
                         style: TextStyle(
                           color: MenuState.message == selectedMenu
                               ? kPrimaryColor
