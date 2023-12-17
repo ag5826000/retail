@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -73,6 +75,41 @@ class _CartScreenState extends State<CartScreen> {
         'transactionID': cartDocument.id,
         'timestamp': FieldValue.serverTimestamp(),
       });
+      final CollectionReference productPriceUpdate = firestore.collection('productPriceUpdate');
+      print("here");
+      for (var cartItem in cartItems) {
+        final String productID = cartItem['productId'];
+        final int sellingPrice = cartItem['sellingPrice'];
+        print("inside for loop");
+
+        // Query the product table to get MRP
+        final DocumentSnapshot productSnapshot = await firestore.collection('products').doc(productID).get();
+
+        // Check if the 'mrp' field exists and is not null in the document
+        if (productSnapshot.exists && productSnapshot['mrp'] != null) {
+          final String mrp = productSnapshot['mrp'];
+
+          print("got mrp");
+          // Check if the product ID is already present in productPriceUpdate
+          final existingDocument = await productPriceUpdate.doc(productID).get();
+
+          // Check if sellingPrice is greater than MRP before adding
+          if (!existingDocument.exists && sellingPrice > int.parse(mrp)) {
+            // Product ID not present, add it with a timestamp, MRP, and selling price
+            await productPriceUpdate.doc(productID).set({
+              'timestamp': FieldValue.serverTimestamp(),
+              'mrp': mrp,
+              'sellingPrice': sellingPrice,
+              // Add other fields related to product price update if needed
+            });
+            print("product added to new database");
+          }
+        } else {
+          // Handle the case where 'mrp' field is missing or null
+          print("Warning: 'mrp' field is missing or null for product ID: $productID");
+        }
+      }
+
       // Cart data has been successfully saved to Firestore, clear the demo cart
       setState(() {
         demoCartsMap.clear();
