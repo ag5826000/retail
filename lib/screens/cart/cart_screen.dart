@@ -321,7 +321,7 @@ class _CartScreenState extends State<CartScreen> {
       bottomNavigationBar: CheckoutCard(cartTotal: cartTotal,onPressCheckout: onPressCheckout,),
       floatingActionButton: FloatingActionButton(
         elevation: 7,
-        backgroundColor: Color(0xFFFF7643),
+        backgroundColor: Color(0xFFFF4747),
         onPressed: () {
           Navigator.pushNamed(context, BarcodeListScannerWithController.routeName).then((_) => setState(() {}));
         },
@@ -361,7 +361,7 @@ class _CartScreenState extends State<CartScreen> {
                 text: "Scan More",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 18, // Adjust the font size as needed
+                  fontSize: 16, // Adjust the font size as needed
                 ),
               ),
             ),
@@ -369,7 +369,7 @@ class _CartScreenState extends State<CartScreen> {
         ),
 
         Container(
-          margin: EdgeInsets.fromLTRB(0, 0, 9, 0), // Adjust the margin as needed
+          margin: EdgeInsets.fromLTRB(0, 0, 28, 0), // Adjust the margin as needed
           child: InkWell(
             onTap: () async => {
               // scanBarcodes()

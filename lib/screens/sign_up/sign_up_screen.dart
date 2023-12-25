@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../components/socal_card.dart';
 import '../../constants.dart';
@@ -51,11 +53,30 @@ class SignUpScreen extends StatelessWidget {
                   //   ],
                   // ),
                   SizedBox(height: getProportionateScreenHeight(20)),
-                  Text(
-                    'By continuing your confirm that you agree \nwith our Term and Condition',
+                  RichText(
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.caption,
-                  )
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.caption,
+                      children: [
+                        TextSpan(
+                          text:
+                          'By continuing you confirm that you agree \nwith our ',
+                        ),
+                        TextSpan(
+                          text: 'Terms and Conditions',
+                          style: TextStyle(
+                            color: kPrimaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              // Implement your navigation or open the link action here.
+                              _launchURL();
+                            },
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -63,5 +84,10 @@ class SignUpScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+  void _launchURL() async {
+    final Uri toLaunch =
+    Uri(scheme: 'https', host: 'hisaaabcom.notion.site', path: 'Privacy-Policy-b30617f4f2114d4a800229ec8ef095ba/');
+    await launchUrl(toLaunch);
   }
 }

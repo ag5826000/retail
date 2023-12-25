@@ -80,7 +80,7 @@ class CartCard extends StatelessWidget {
                         margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
                         padding: EdgeInsets.all(5),
                         decoration: BoxDecoration(
-                          color: Colors.blue,
+                          color: kPrimaryColor,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -98,7 +98,7 @@ class CartCard extends StatelessWidget {
                             margin: EdgeInsets.fromLTRB(0, 0, 5, 0),
                             padding: EdgeInsets.all(5),
                             decoration: BoxDecoration(
-                              color: Colors.red[900],
+                              color: kPrimaryColor,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(

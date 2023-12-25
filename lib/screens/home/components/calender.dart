@@ -3,6 +3,7 @@ import 'package:shop_app/screens/history/history_screen.dart';
 import 'package:shop_app/screens/home/home_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../constants.dart';
 import 'utils.dart';
 
 class Calender extends StatefulWidget {
@@ -65,7 +66,7 @@ class _CalenderState extends State<Calender> {
                           },
                           child: Text(
                             'OK',
-                            style: TextStyle(color: Colors.orange),
+                            style: TextStyle(color: kPrimaryColor),
                           ),
                         ),
                       ],
@@ -77,7 +78,7 @@ class _CalenderState extends State<Calender> {
             child: Container(
               margin: EdgeInsets.fromLTRB(0, 6, 14, 12),
               decoration: BoxDecoration(
-                color: Colors.orange, // Change the button color as needed
+                color: kPrimaryColor, // Change the button color as needed
                 borderRadius: BorderRadius.circular(8.0), // Adjust the border radius
                 boxShadow: [
                   BoxShadow(
@@ -142,13 +143,13 @@ class _CalenderState extends State<Calender> {
         },
 
         calendarStyle: CalendarStyle( // Define a custom calendar styl
-          rangeHighlightColor: Colors.orange.withOpacity(0.3),
+          rangeHighlightColor: kPrimaryColor.withOpacity(0.3),
           rangeStartDecoration: BoxDecoration(
-            color: Colors.orange, // Change the selected date color to orange
+            color: kPrimaryColor,
             shape: BoxShape.circle,
           ),
           rangeEndDecoration: BoxDecoration(
-            color: Colors.orange, // Change the selected date color to orange
+            color: kPrimaryColor,
             shape: BoxShape.circle,
           ),
           isTodayHighlighted: false,

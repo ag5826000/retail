@@ -46,20 +46,23 @@ class _HomeHeaderState extends State<HomeHeader> {
                 // Handle calendar icon press action
                 Navigator.pushNamed(context, Calender.routeName, arguments: {'sourcePage': 'home'});
               },
-              child: IconBtnWithCounter(
-                svgSrc: "assets/icons/calender.svg",
-                press: () => Navigator.pushNamed(context, Calender.routeName, arguments: {'sourcePage': 'home'}),
+              child: Row(
+                children: [
+                  IconBtnWithCounter(
+                    svgSrc: "assets/icons/calender.svg",
+                    press: () => Navigator.pushNamed(context, Calender.routeName, arguments: {'sourcePage': 'home'}),
+                  ),
+                  if (widget.rangeStart != null && widget.rangeEnd != null)
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 1), // Add margin to separate widgets
+                      child: Text(
+                        '${_formattedDate(widget.rangeStart)} - ${_formattedDate(widget.rangeEnd)}',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                ],
               ),
             ),
-
-            if (widget.rangeStart != null && widget.rangeEnd != null)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 1), // Add margin to separate widgets
-                child: Text(
-                  '${_formattedDate(widget.rangeStart)} - ${_formattedDate(widget.rangeEnd)}',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
 
             // SizedBox(width: 2),
 
